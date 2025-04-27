@@ -1,0 +1,4 @@
+{
+    "LoadRule": "LoadAll",
+    "LoadAllRoot": "Resources/People"
+}

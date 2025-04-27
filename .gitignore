@@ -1,0 +1,6 @@
+.vs/
+.vscode/
+
+Binaries*/
+*.filters
+*.user
