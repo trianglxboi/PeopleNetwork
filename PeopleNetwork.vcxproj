@@ -159,6 +159,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Renderer.cpp" />
     <ClCompile Include="Source\CommandLine.cpp" />
     <ClCompile Include="Source\FileUtil.cpp" />
     <ClCompile Include="Source\Main.cpp" />
@@ -174,6 +175,7 @@
     <ClInclude Include="Source\PeopleLoadData.h" />
     <ClInclude Include="Source\PeopleStorage.h" />
     <ClInclude Include="Source\Person.h" />
+    <ClInclude Include="Source\Renderer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

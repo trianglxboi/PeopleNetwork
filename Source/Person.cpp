@@ -1,8 +1,18 @@
 #include "Person.h"
 #include "FileUtil.h"
 
+#include <random>
+
 namespace PeopleNetwork
 {
+	Person::Person()
+	{
+		static std::random_device rd;
+		static std::mt19937_64 rng(rd());
+		static std::uniform_int_distribution<size_t> dist(0, std::numeric_limits<size_t>::max());
+		Handle = dist(rng);
+	}
+
 	std::string_view Person::HistoricalPeriodToString(HistoricalPeriod period)
 	{
 		switch (period)
@@ -60,6 +70,16 @@ namespace PeopleNetwork
 		Lifetime = { root["Lifetime"][0].asInt(), root["Lifetime"][1].asInt() };
 		Importance = ImportanceFromString(root["Importance"].asString());
 
+		Json::Value& dataGui = root["DataGUI"];
+		Json::Value& position = dataGui["Position"];
+		Json::Value& color = dataGui["Color"];
+
+		DataGUI.Position.X = position[0].asInt();
+		DataGUI.Position.Y = position[1].asInt();
+		DataGUI.Color.R = color[0].asInt();
+		DataGUI.Color.G = color[1].asInt();
+		DataGUI.Color.B = color[2].asInt();
+
 		Json::Value& contentSection = root["ContentSection"];
 		size_t i = 0;
 		for (Json::Value& section : contentSection)
@@ -68,7 +88,6 @@ namespace PeopleNetwork
 			sec.Header = contentSection.getMemberNames()[i++];
 			sec.Content = section.asString();
 		}
-
 		return true;
 	}
 }

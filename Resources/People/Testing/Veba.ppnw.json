@@ -1,13 +1,17 @@
 {
-    "Name": "Gökhân Eren Sünger",
-    "Origin": "Ëtaatj Díraten Ratmafia",
-    "ShortDesc": "VI. Faruk, Ratmafia ve Las Plaga Virüsünün Dâhisi",
+    "Name": "GÃ¶khÃ¢n Eren SÃ¼nger",
+    "Origin": "Ã‹taatj DÃ­raten Ratmafia",
+    "ShortDesc": "VI. Faruk, Ratmafia ve Las Plaga VirÃ¼sÃ¼nÃ¼n DÃ¢hisi",
     "Period": "Republic",
     "Lifetime": [ 2009, 2025 ],
     "Importance": "High",
+	"DataGUI": {
+		"Position": [ 65, 105 ],
+		"Color": [ 255, 255, 0 ]
+	},
     "ContentSection": {
-        "Giriş": "Faruk tarihi uzun dönemlere uzanmaktadır, günümüze kadar I. Faruk tarafından kendisi dâhil 6 adet Faruk indirilmiştir ve mevcut Faruk 6. olandır.",
-        "Ordu": "VI. Faruk, 600 kişilik klon ordusuyla tarihteki en güçlü Faruk idur.",
-        "Kapanış": "Veba kapmak istemiyorsanız uzak durunuz."
+        "GiriÅŸ": "Faruk tarihi uzun dÃ¶nemlere uzanmaktadÄ±r, gÃ¼nÃ¼mÃ¼ze kadar I. Faruk tarafÄ±ndan kendisi dÃ¢hil 6 adet Faruk indirilmiÅŸtir ve mevcut Faruk 6. olandÄ±r.",
+        "Ordu": "VI. Faruk, 600 kiÅŸilik klon ordusuyla tarihteki en gÃ¼Ã§lÃ¼ Faruk idur.",
+        "KapanÄ±ÅŸ": "Veba kapmak istemiyorsanÄ±z uzak durunuz."
     }
 }

@@ -1,10 +1,14 @@
 {
-    "Name": "Yusuf Ýslâm Özer",
+    "Name": "Yusuf Ä°slÃ¢m Ã–zer",
     "Origin": "Azerbaycan Pavilyonu",
-    "ShortDesc": "Cipslerin Fâtihi",
+    "ShortDesc": "Cipslerin FÃ¢tihi",
     "Period": "Islamic",
     "Lifetime": [ 815, 9999 ],
     "Importance": "Mid",
+	"DataGUI": {
+		"Position": [ 65, 65 ],
+		"Color": [ 255, 0, 0 ]
+	},
     "ContentSection": {
         "Intro": "Privet, he very scary man :'(",
         "Lifetory": "He do be eatin' some o' dat crisps mate",

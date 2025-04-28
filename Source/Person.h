@@ -5,8 +5,13 @@
 
 namespace PeopleNetwork
 {
+	typedef size_t PRSHANDLE;
+
 	struct Person
 	{
+		PRSHANDLE Handle = 0;
+		Person();
+
 		std::string Name;
 		std::string Origin; // Country of Origin
 		std::string ShortDesc;
@@ -31,6 +36,18 @@ namespace PeopleNetwork
 		static std::string_view ImportanceToString(ImportanceEnum importance);
 		static ImportanceEnum ImportanceFromString(std::string_view importance);
 
+		struct StructDataGUI
+		{
+			struct PositionStruct
+			{
+				int X, Y;
+			} Position;
+			struct ColorStruct
+			{
+				int R, G, B;
+			} Color;
+		} DataGUI;
+
 		struct ContentSection
 		{
 			std::string Header;  // Section Header (i.e. Name)
@@ -40,4 +57,5 @@ namespace PeopleNetwork
 
 		bool PopulateFromJson(std::string_view json);
 	};
+	inline Person INVALID_PERSON_HANDLE = {};
 }
