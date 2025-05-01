@@ -6,6 +6,7 @@
 namespace PeopleNetwork
 {
 	typedef size_t PRSHANDLE;
+	inline constexpr PRSHANDLE INVALID_PERSON_HANDLE = 0;
 
 	struct Person
 	{
@@ -57,5 +58,5 @@ namespace PeopleNetwork
 
 		bool PopulateFromJson(std::string_view json);
 	};
-	inline Person INVALID_PERSON_HANDLE = {};
+	inline Person INVALID_PERSON_STRUCT = {};
 }

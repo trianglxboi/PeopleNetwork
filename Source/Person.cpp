@@ -81,13 +81,20 @@ namespace PeopleNetwork
 		DataGUI.Color.B = color[2].asInt();
 
 		Json::Value& contentSection = root["ContentSection"];
-		size_t i = 0;
-		for (Json::Value& section : contentSection)
+		for (size_t i = 0; /*noexpr*/; i++)
 		{
+			std::string istring = std::to_string(i);
+			if (!contentSection.isMember(istring))
+			{
+				break;
+			}
+
+			Json::Value& section = contentSection[istring];
 			ContentSection& sec = ContentSections.emplace_back();
-			sec.Header = contentSection.getMemberNames()[i++];
-			sec.Content = section.asString();
+			sec.Header = section["Header"].asString();
+			sec.Content = section["Content"].asString();
 		}
+
 		return true;
 	}
 }

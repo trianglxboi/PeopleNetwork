@@ -1,0 +1,14 @@
+=== MAIN ===
+/window_title <title>   - Overrides window title
+/window_width <width>   - Overrides window width
+/window_height <height> - Overrides window height
+/windowed               - Makes the window start windowed
+/font_regular <file>    - Overrides default regular font load file
+/font_bold <file>       - Overrides default bold font load file
+/font_italic <file>     - Overrides default italic font load file
+/load_data <file>       - Overrides the default person load data file
+/allowdyn               - Allows dynamically toggling windowed/fullscreen mode using F11
+/tooltip_font <ONE OF: regular/bold/italic> - Sets font to use with person tooltip text
+
+=== RENDERER ===
+/xscalefactor <factor>  - Sets the person tooltip position x size scale factor per char

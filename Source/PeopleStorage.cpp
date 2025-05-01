@@ -11,7 +11,11 @@ namespace PeopleNetwork
 	
 	void PeopleStorage::Set(const std::vector<Person>& people)
 	{
-		m_People = people;
+		Reset();
+		for (const Person& person : people)
+		{
+			m_People[person.Handle] = person;
+		}
 	}
 	
 	bool PeopleStorage::LoadFromConfig(const PeopleLoadData& cfg, bool reset)
@@ -68,13 +72,13 @@ namespace PeopleNetwork
 		{
 			return false;
 		}
-		m_People.push_back(person);
+		m_People[person.Handle] = person;
 		return true;
 	}
 
 	void PeopleStorage::Upload(const Person& person)
 	{
-		m_People.push_back(person);
+		m_People[person.Handle] = person;
 	}
 
 	void PeopleStorage::SetPersonFileExtension(std::string_view extension)

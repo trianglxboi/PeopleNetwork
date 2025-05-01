@@ -1,17 +1,13 @@
 #include "PeopleStorage.h"
 #include "CommandLine.h"
+#include "StringUtil.h"
 #include "Renderer.h"
 #include "Log.h"
 
 #include "SFML/Graphics.hpp"
 
-#include <codecvt>
-
-std::wstring u8tow(const std::string& string)
-{
-	std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-	return converter.from_bytes(string);
-}
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
 
 enum ProgramState
 {
@@ -19,13 +15,14 @@ enum ProgramState
 	PPRSINF // Person info screen
 };
 ProgramState PSTATE = PPPLSEL;
-PeopleNetwork::Person& PPRSINFSUBJ = PeopleNetwork::INVALID_PERSON_HANDLE;
+PeopleNetwork::PRSHANDLE PPPLSELSUBJ = PeopleNetwork::INVALID_PERSON_HANDLE; // People Selection Subject (mouse hovered person)
+PeopleNetwork::Person&   PPRSINFSUBJ = PeopleNetwork::INVALID_PERSON_STRUCT; // Person Info Subject
 
 int main(int argc, char** argv)
 {
 	using namespace PeopleNetwork;
-	g_CmdLine = CommandLine(argv, argc);
-	int adj;
+	g_CmdLine = { argv, argc };
+	int adj = ARG_NONE;
 
 	std::string title = "Kisiler Agi";
 	int width = 0, height = 0;
@@ -35,12 +32,8 @@ int main(int argc, char** argv)
 	const char *fontRegularFile = "Resources/Fonts/Roboto-Regular.ttf",
 			   *fontBoldFile    = "Resources/Fonts/Roboto-Bold.ttf",
 			   *fontItalicFile  = "Resources/Fonts/Roboto-Italic.ttf";
+	const char* fontTypePersonTooltip = "regular";
 	const char* peopleLoadDataFile = "Resources/PeopleLoadData.json";
-
-#define OVERRIDE_FROM_CMDLINE(arg, ovr, valset) if (g_CmdLine.ContainsAdjacent(arg, adj)) { ovr = valset; }
-#define OVERRIDE_FROM_CMDLINE_STR(arg, ovr) OVERRIDE_FROM_CMDLINE(arg, ovr, g_CmdLine[adj])
-#define OVERRIDE_FROM_CMDLINE_INT(arg, ovr) OVERRIDE_FROM_CMDLINE(arg, ovr, atoi(g_CmdLine[adj]))
-#define OVERRIDE_FROM_CMDLINE_FLG(arg, bit) bit = g_CmdLine.Contains(arg);
 
 	OVERRIDE_FROM_CMDLINE_STR("/window_title", title);
 	OVERRIDE_FROM_CMDLINE_INT("/window_width", width);
@@ -49,6 +42,7 @@ int main(int argc, char** argv)
 	OVERRIDE_FROM_CMDLINE_STR("/font_regular", fontRegularFile);
 	OVERRIDE_FROM_CMDLINE_STR("/font_bold", fontBoldFile);
 	OVERRIDE_FROM_CMDLINE_STR("/font_italic", fontItalicFile);
+	OVERRIDE_FROM_CMDLINE_STR("/tooltip_font", fontTypePersonTooltip);
 	OVERRIDE_FROM_CMDLINE_STR("/load_data", peopleLoadDataFile);
 	OVERRIDE_FROM_CMDLINE_FLG("/allowdyn", allowDynamicMode);
 
@@ -78,6 +72,13 @@ int main(int argc, char** argv)
 		windowed ? sf::State::Windowed : sf::State::Fullscreen
 	);
 
+	// FIXME: Doesn't set with fullscreen for some reason.
+	if (title == "Kisiler Agi")
+	{
+		sf::WindowHandle handle = window.getNativeHandle();
+		SetWindowTextW(handle, L"Kiþiler Aðý");
+	}
+
 	// Try init sf fonts
 	sf::Font fontRegular, fontBold, fontItalic;
 	{
@@ -99,16 +100,35 @@ int main(int argc, char** argv)
 			return EXIT_FAILURE;
 		}
 	}
+	sf::Font& fontRefPersonTooltip = fontRegular;
+	if (strcmp(fontTypePersonTooltip, "regular") == 1)
+	{
+		fontRefPersonTooltip = fontRegular;
+	}
+	else if (strcmp(fontTypePersonTooltip, "bold") == 1)
+	{
+		fontRefPersonTooltip = fontBold;
+	}
+	else if (strcmp(fontTypePersonTooltip, "italic") == 1)
+	{
+		fontRefPersonTooltip = fontItalic;
+	}
 
-	Renderer r(window);
+	Renderer r({ fontRegular, fontBold, fontItalic }, window);
 	r.BuildPeopleBuffer(peopleStorage.GetPeople());
-
+	r.BuildSortByBuffer(fontRegular);
+	
 	std::optional<sf::Event> e;
 	while (!(e = window.waitEvent())->is<sf::Event::Closed>())
 	{
-		auto* eKeyPress = e->getIf<sf::Event::KeyPressed>();
+		// Getting all event types we need
+		auto* eKeyPress      = e->getIf<sf::Event::KeyPressed>();
+		auto* eMouseMove     = e->getIf<sf::Event::MouseMoved>();
+		auto* eMouseReleased = e->getIf<sf::Event::MouseButtonReleased>();
+
 		if (eKeyPress)
 		{
+			// Best to probably convert into a switch statement.
 			if (eKeyPress->code == sf::Keyboard::Key::F11 && allowDynamicMode)
 			{
 				windowed = !windowed;
@@ -120,16 +140,84 @@ int main(int argc, char** argv)
 					windowed ? sf::State::Windowed : sf::State::Fullscreen
 				);
 			}
+			else if (eKeyPress->code == sf::Keyboard::Key::Q || eKeyPress->code == sf::Keyboard::Key::Escape)
+			{
+				return EXIT_SUCCESS;
+			}
 		}
-
-		window.clear(sf::Color(225, 225, 255));
-
+		
+	StateHandling:
+		window.clear(sf::Color(225, 225, 245));
 		switch (PSTATE)
 		{
-		/* People selection screen where */
+		/* People selection screen */
 		case PPPLSEL:
 		{
+			if (eMouseReleased)
+			{
+				if (PPPLSELSUBJ != INVALID_PERSON_HANDLE && r.GetPeopleBuffer().at(PPPLSELSUBJ).getGlobalBounds().contains((sf::Vector2f) sf::Mouse::getPosition()))
+				{
+					PSTATE = PPRSINF;
+					r.BuildPersonInfoBuffer(peopleStorage.GetPeople().at(PPPLSELSUBJ));
+					goto StateHandling; // Re-execute loop
+				}
+			}
+
 			r.RenderPeopleBuffer();
+			r.RenderSortByBuffer();
+
+			if (eMouseMove)
+			{
+				if (PPPLSELSUBJ != INVALID_PERSON_HANDLE)
+				{
+					const sf::CircleShape& shape = r.GetPeopleBuffer().at(PPPLSELSUBJ);
+
+					// If mouse is still within the subject circle, we know the hover person did not change, so
+					// we shouldn't check for where it is contained.
+					if (shape.getGlobalBounds().contains((sf::Vector2f) eMouseMove->position))
+					{
+						goto PostHoverHandle;
+					}
+					// Subject changed or invalidated.
+					else
+					{
+						PPPLSELSUBJ = INVALID_PERSON_HANDLE;
+					}
+				}
+
+				for (auto&& [handle, shape] : r.GetPeopleBuffer())
+				{
+					if (shape.getGlobalBounds().contains((sf::Vector2f) eMouseMove->position))
+					{
+						PPPLSELSUBJ = handle;
+						break;
+					}
+				}
+			}
+		PostHoverHandle:
+			if (PPPLSELSUBJ)
+			{
+				r.RenderPersonTooltip(PPPLSELSUBJ, peopleStorage.GetPeople().at(PPPLSELSUBJ).Name, fontRefPersonTooltip);
+			}
+
+			break;
+		}
+		case PPRSINF:
+		{
+			if (eMouseReleased)
+			{
+				if (((sf::Sprite*) r.GetPersonInfoBuffer().at(PERSON_INFO_BUTTON_RETURN).get())->getGlobalBounds().contains((sf::Vector2f) sf::Mouse::getPosition()))
+				{
+					PSTATE      = PPPLSEL;
+					PPPLSELSUBJ = INVALID_PERSON_HANDLE;
+					PPRSINFSUBJ = INVALID_PERSON_STRUCT;
+
+					goto StateHandling;
+				}
+			}
+
+			r.RenderPersonInfoBuffer();
+			break;
 		}
 		}
 

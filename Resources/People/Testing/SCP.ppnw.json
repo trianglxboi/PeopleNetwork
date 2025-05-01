@@ -6,12 +6,21 @@
     "Lifetime": [ 815, 9999 ],
     "Importance": "Mid",
 	"DataGUI": {
-		"Position": [ 65, 65 ],
+		"Position": [ -65, -65 ],
 		"Color": [ 255, 0, 0 ]
 	},
     "ContentSection": {
-        "Intro": "Privet, he very scary man :'(",
-        "Lifetory": "He do be eatin' some o' dat crisps mate",
-        "Closing": "STAY. AWAY."
+        "0": {
+            "Header": "İntro",
+            "Content": "Privet, he very scary man :'("
+        },
+        "1": {
+            "Header": "Hayat Hikâyesi",
+            "Content": "He do be eatin' some o' dat crisps mate"
+        },
+        "2": {
+            "Header": "Kapanış",
+            "Content": "STAY. AWAY."
+        }
     }
 }

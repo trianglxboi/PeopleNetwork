@@ -166,6 +166,7 @@
     <ClCompile Include="Source\PeopleLoadData.cpp" />
     <ClCompile Include="Source\PeopleStorage.cpp" />
     <ClCompile Include="Source\Person.cpp" />
+    <ClCompile Include="Source\StringUtil.cpp" />
     <ClCompile Include="Vendor\jsoncpp\jsoncpp.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -176,6 +177,7 @@
     <ClInclude Include="Source\PeopleStorage.h" />
     <ClInclude Include="Source\Person.h" />
     <ClInclude Include="Source\Renderer.h" />
+    <ClInclude Include="Source\StringUtil.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

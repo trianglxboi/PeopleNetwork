@@ -3,6 +3,8 @@
 #include "PeopleLoadData.h"
 #include "Person.h"
 
+#include <unordered_map>
+
 namespace PeopleNetwork
 {
 	class PeopleStorage
@@ -24,9 +26,9 @@ namespace PeopleNetwork
 		void SetPersonFileExtension(std::string_view extension);
 		const std::string& GetPersonFileExtension() const { return m_PersonFileExtension; }
 
-		const std::vector<Person>& GetPeople() const { return m_People; }
+		const std::unordered_map<PRSHANDLE, Person>& GetPeople() const { return m_People; }
 	private:
-		std::vector<Person> m_People;
+		std::unordered_map<PRSHANDLE, Person> m_People;
 		std::string m_PersonFileExtension = ".ppnw.json";
 	};
 }
