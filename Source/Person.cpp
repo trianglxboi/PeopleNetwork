@@ -1,4 +1,6 @@
 #include "Person.h"
+
+#include "StringUtil.h"
 #include "FileUtil.h"
 
 #include <random>
@@ -55,7 +57,7 @@ namespace PeopleNetwork
 		return (ImportanceEnum) -1;
 	}
 
-	bool Person::PopulateFromJson(std::string_view json)
+	bool Person::PopulateFromJson(std::string_view json, size_t wrapContentTolerance)
 	{
 		Json::Value root;
 		if (!FileUtil::ReadJson(json, root))
@@ -63,9 +65,9 @@ namespace PeopleNetwork
 			return false;
 		}
 
-		Name = root["Name"].asString();
-		Origin = root["Origin"].asString();
-		ShortDesc = root["ShortDesc"].asString();
+		Name = StringUtil::u8tow(root["Name"].asString());
+		Origin = StringUtil::u8tow(root["Origin"].asString());
+		ShortDesc = StringUtil::u8tow(root["ShortDesc"].asString());
 		Period = HistoricalPeriodFromString(root["Period"].asString());
 		Lifetime = { root["Lifetime"][0].asInt(), root["Lifetime"][1].asInt() };
 		Importance = ImportanceFromString(root["Importance"].asString());
@@ -91,8 +93,23 @@ namespace PeopleNetwork
 
 			Json::Value& section = contentSection[istring];
 			ContentSection& sec = ContentSections.emplace_back();
-			sec.Header = section["Header"].asString();
-			sec.Content = section["Content"].asString();
+			sec.Header = StringUtil::u8tow(section["Header"].asString());
+			sec.Content = StringUtil::u8tow(section["Content"].asString());
+
+			if (wrapContentTolerance != DO_NOT_WRAP_CONTENT)
+			{
+				for (size_t i = wrapContentTolerance; i < sec.Content.size(); i += wrapContentTolerance)
+				{
+					if (i + 1 < sec.Content.size() && (isspace(sec.Content[i + 1]) || isspace(sec.Content[i - 1])))
+					{
+						sec.Content.insert(i, L"\n");
+					}
+					else
+					{
+						sec.Content.insert(i, L"-\n");
+					}
+				}
+			}
 		}
 
 		return true;

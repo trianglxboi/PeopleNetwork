@@ -68,7 +68,7 @@ namespace PeopleNetwork
 	bool PeopleStorage::LoadFromFile(std::string_view file)
 	{
 		Person person;
-		if (!person.PopulateFromJson(file))
+		if (!person.PopulateFromJson(file, m_WrapContentTolerance))
 		{
 			return false;
 		}
@@ -84,5 +84,10 @@ namespace PeopleNetwork
 	void PeopleStorage::SetPersonFileExtension(std::string_view extension)
 	{
 		m_PersonFileExtension = extension;
+	}
+
+	void PeopleStorage::SetWrapContentTolerance(size_t wrapContentTolerance)
+	{
+		m_WrapContentTolerance = wrapContentTolerance;
 	}
 }

@@ -35,6 +35,9 @@ int main(int argc, char** argv)
 	const char* fontTypePersonTooltip = "regular";
 	const char* peopleLoadDataFile = "Resources/PeopleLoadData.json";
 
+	// Value default optimized only for 1920x1080.
+	size_t wrapContentTolerance = 169;
+
 	OVERRIDE_FROM_CMDLINE_STR("/window_title", title);
 	OVERRIDE_FROM_CMDLINE_INT("/window_width", width);
 	OVERRIDE_FROM_CMDLINE_INT("/window_height", height);
@@ -45,9 +48,11 @@ int main(int argc, char** argv)
 	OVERRIDE_FROM_CMDLINE_STR("/tooltip_font", fontTypePersonTooltip);
 	OVERRIDE_FROM_CMDLINE_STR("/load_data", peopleLoadDataFile);
 	OVERRIDE_FROM_CMDLINE_FLG("/allowdyn", allowDynamicMode);
+	OVERRIDE_FROM_CMDLINE_INT("/wrap_content_tolerance", wrapContentTolerance);
 
 	// Load people into memory
 	PeopleStorage peopleStorage; // 
+	peopleStorage.SetWrapContentTolerance(wrapContentTolerance);
 	{
 		PeopleLoadData ldData;
 		if (!ldData.PopulateFromJson(peopleLoadDataFile))

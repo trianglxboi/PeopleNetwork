@@ -26,9 +26,14 @@ namespace PeopleNetwork
 		void SetPersonFileExtension(std::string_view extension);
 		const std::string& GetPersonFileExtension() const { return m_PersonFileExtension; }
 
+		// Will be used for all Person::PopulateFromJson calls
+		void SetWrapContentTolerance(size_t wrapContentTolerance);
+		size_t GetWrapContentTolerance() const { return m_WrapContentTolerance; }
+
 		const std::unordered_map<PRSHANDLE, Person>& GetPeople() const { return m_People; }
 	private:
 		std::unordered_map<PRSHANDLE, Person> m_People;
 		std::string m_PersonFileExtension = ".ppnw.json";
+		size_t m_WrapContentTolerance = DO_NOT_WRAP_CONTENT;
 	};
 }

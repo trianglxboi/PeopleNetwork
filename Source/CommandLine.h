@@ -31,5 +31,5 @@ namespace PeopleNetwork
 #define OVERRIDE_FROM_CMDLINE(arg, ovr, valset) if (g_CmdLine.ContainsAdjacent(arg, adj)) { ovr = valset; }
 #define OVERRIDE_FROM_CMDLINE_STR(arg, ovr) OVERRIDE_FROM_CMDLINE(arg, ovr, g_CmdLine[adj])
 #define OVERRIDE_FROM_CMDLINE_INT(arg, ovr) OVERRIDE_FROM_CMDLINE(arg, ovr, atoi(g_CmdLine[adj]))
-#define OVERRIDE_FROM_CMDLINE_FLT(arg, ovr) OVERRIDE_FROM_CMDLINE(arg, ovr, atof(g_CmdLine[adj]))
+#define OVERRIDE_FROM_CMDLINE_FLT(arg, ovr) OVERRIDE_FROM_CMDLINE(arg, ovr, (float) atof(g_CmdLine[adj]))
 #define OVERRIDE_FROM_CMDLINE_FLG(arg, bit) bit = g_CmdLine.Contains(arg);

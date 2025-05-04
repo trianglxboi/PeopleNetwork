@@ -2,6 +2,9 @@
 
 #include <string>
 #include <vector>
+#include <limits>
+
+#define DO_NOT_WRAP_CONTENT (std::numeric_limits<size_t>::max())
 
 namespace PeopleNetwork
 {
@@ -13,9 +16,9 @@ namespace PeopleNetwork
 		PRSHANDLE Handle = 0;
 		Person();
 
-		std::string Name;
-		std::string Origin; // Country of Origin
-		std::string ShortDesc;
+		std::wstring Name;
+		std::wstring Origin; // Country of Origin
+		std::wstring ShortDesc;
 
 		enum class HistoricalPeriod
 		{
@@ -51,12 +54,12 @@ namespace PeopleNetwork
 
 		struct ContentSection
 		{
-			std::string Header;  // Section Header (i.e. Name)
-			std::string Content; // Actual text content
+			std::wstring Header;  // Section Header (i.e. Name)
+			std::wstring Content; // Actual text content
 		};
 		std::vector<ContentSection> ContentSections;
 
-		bool PopulateFromJson(std::string_view json);
+		bool PopulateFromJson(std::string_view json, size_t wrapContentTolerance = DO_NOT_WRAP_CONTENT);
 	};
 	inline Person INVALID_PERSON_STRUCT = {};
 }

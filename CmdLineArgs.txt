@@ -1,14 +1,26 @@
 === MAIN ===
-/window_title <title>   - Overrides window title
-/window_width <width>   - Overrides window width
-/window_height <height> - Overrides window height
-/windowed               - Makes the window start windowed
-/font_regular <file>    - Overrides default regular font load file
-/font_bold <file>       - Overrides default bold font load file
-/font_italic <file>     - Overrides default italic font load file
-/load_data <file>       - Overrides the default person load data file
-/allowdyn               - Allows dynamically toggling windowed/fullscreen mode using F11
+/window_title <title: str>   - Overrides window title
+/window_width <width: int>   - Overrides window width
+/window_height <height: int> - Overrides window height
+/windowed                    - Makes the window start windowed
+/font_regular <file: str>    - Overrides default regular font load file
+/font_bold <file: str>       - Overrides default bold font load file
+/font_italic <file: str>     - Overrides default italic font load file
+/load_data <file: str>       - Overrides the default person load data file
+/allowdyn                    - Allows dynamically toggling windowed/fullscreen mode using F11
 /tooltip_font <ONE OF: regular/bold/italic> - Sets font to use with person tooltip text
+/wrap_content_tolerance <tolerance: int> - Sets the PeopleStorage m_WrapContentTolerance for each Person::PopulateFromJson call.
 
 === RENDERER ===
-/xscalefactor <factor>  - Sets the person tooltip position x size scale factor per char
+/xscalefactor <factor: float>  - Sets the person tooltip position x size scale factor per char
+/radii_scalar <scalar: float>  - Sets override for default IMPORTANCE_BASE_RADII_SCALAR
+/detail_factor <factor: int>   - Sets override for default CIRCLE_RENDER_DETAIL_FACTOR
+/hard_fix_disable              - Disables "Ýslamiyet Öncesi Dönemi Düþünürü" 'i' fall hardfix. Useful if crashing due to change within string size.
+/return_button <file: str>     - Sets the return button image file
+/pre_islamic_sb <file: str>    - Sets the PreIslamic period sort/by image file
+/islamic_sb <file: str>        - Sets the Islamic period sort/by image file
+/republic_sb <file: str>       - Sets the Republic period sort/by image file
+/passive_history               - Disables sort/by options for the PreIslamic HistoryPeriod.
+/favor_x <favor: float>        - Sets the initial x offset for first sort/by option button.
+/favor_y <favor: float>        - Sets the constant y offset for all sort/by option buttons.
+/favor_xsepfactor <factor: float> - Set the x seperation offset for next sort/by option buttons (has no effect for the 1st).
