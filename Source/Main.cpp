@@ -1,6 +1,7 @@
 #include "PeopleStorage.h"
 #include "CommandLine.h"
 #include "StringUtil.h"
+#include "FileUtil.h"
 #include "Renderer.h"
 #include "Log.h"
 
@@ -24,10 +25,40 @@ int main(int argc, char** argv)
 	g_CmdLine = { argv, argc };
 	int adj = ARG_NONE;
 
+	// Note: May be technically memory unsafe, but those must be only deleted at the end of the program.
+	// Since the OS does it manually, we won't bother as we technically need them at all times.
+	if (std::filesystem::exists("RAW_OVERRIDE"))
+	{
+		std::string RAW_OVERRIDE;
+		if (FileUtil::Read("RAW_OVERRIDE", RAW_OVERRIDE))
+		{
+			std::stringstream ss(RAW_OVERRIDE);
+			std::string word;
+
+			g_CmdLine.List = (char**) malloc(1);
+			g_CmdLine.Size = 1; // Because argv[0] == EXEC_PATH
+
+			while (ss >> word)
+			{
+				char* argument = (char*) malloc(word.size() + 1);
+				strcpy(argument, word.data());
+				argument[word.size()] = '\0'; // NULL_TERMINATOR
+
+				g_CmdLine.Size++;
+				g_CmdLine.List = (char**) realloc(g_CmdLine.List, g_CmdLine.Size * sizeof(char**));
+				g_CmdLine.List[g_CmdLine.Size - 1] = argument;
+			}
+		}
+	}
+
 	std::string title = "Kisiler Agi";
 	int width = 0, height = 0;
 	bool windowed = false;
-	bool allowDynamicMode = false;
+	bool allowDynamicMode = false, window_control = false;
+
+	int dropoff_r = 225;
+	int dropoff_g = 225;
+	int dropoff_b = 245;
 
 	const char *fontRegularFile = "Resources/Fonts/Roboto-Regular.ttf",
 			   *fontBoldFile    = "Resources/Fonts/Roboto-Bold.ttf",
@@ -42,6 +73,10 @@ int main(int argc, char** argv)
 	OVERRIDE_FROM_CMDLINE_INT("/window_width", width);
 	OVERRIDE_FROM_CMDLINE_INT("/window_height", height);
 	OVERRIDE_FROM_CMDLINE_FLG("/windowed", windowed);
+	OVERRIDE_FROM_CMDLINE_FLG("/window_control", window_control);
+	OVERRIDE_FROM_CMDLINE_INT("/dropoff_r", dropoff_r);
+	OVERRIDE_FROM_CMDLINE_INT("/dropoff_g", dropoff_g);
+	OVERRIDE_FROM_CMDLINE_INT("/dropoff_b", dropoff_b);
 	OVERRIDE_FROM_CMDLINE_STR("/font_regular", fontRegularFile);
 	OVERRIDE_FROM_CMDLINE_STR("/font_bold", fontBoldFile);
 	OVERRIDE_FROM_CMDLINE_STR("/font_italic", fontItalicFile);
@@ -69,9 +104,20 @@ int main(int argc, char** argv)
 	}
 
 	sf::VideoMode fsMode = sf::VideoMode::getDesktopMode();
+	sf::VideoMode wndmode;
+
+	if (window_control)
+	{
+		wndmode = (width == 0 && height == 0) ? windowed ? sf::VideoMode({ 1280, 720 }) : fsMode : sf::VideoMode(sf::Vector2u(width, height));
+	}
+	else
+	{
+		wndmode = sf::VideoMode({ 1920, 1080 });
+	}
+
 	sf::RenderWindow window
 	(
-		(width == 0 && height == 0) ? windowed ? sf::VideoMode({ 1280, 720 }) : fsMode : sf::VideoMode(sf::Vector2u(width, height)),
+		wndmode,
 		title,
 		sf::Style::Default,
 		windowed ? sf::State::Windowed : sf::State::Fullscreen
@@ -122,13 +168,18 @@ int main(int argc, char** argv)
 	Renderer r({ fontRegular, fontBold, fontItalic }, window);
 	r.BuildPeopleBuffer(peopleStorage.GetPeople());
 	r.BuildSortByBuffer(fontRegular);
-	
+	r.InitMasterQuit();
+
+	bool isDrag = false;
+	float lastmousey = 0.0f;
+
 	std::optional<sf::Event> e;
 	while (!(e = window.waitEvent())->is<sf::Event::Closed>())
 	{
 		// Getting all event types we need
 		auto* eKeyPress      = e->getIf<sf::Event::KeyPressed>();
 		auto* eMouseMove     = e->getIf<sf::Event::MouseMoved>();
+		auto* eMousePressed  = e->getIf<sf::Event::MouseButtonPressed>();
 		auto* eMouseReleased = e->getIf<sf::Event::MouseButtonReleased>();
 
 		if (eKeyPress)
@@ -139,7 +190,7 @@ int main(int argc, char** argv)
 				windowed = !windowed;
 				window.create
 				(
-					(width == 0 && height == 0) ? windowed ? sf::VideoMode({ 1280, 720 }) : fsMode : sf::VideoMode(sf::Vector2u(width, height)),
+					wndmode,
 					title,
 					sf::Style::Default,
 					windowed ? sf::State::Windowed : sf::State::Fullscreen
@@ -152,7 +203,7 @@ int main(int argc, char** argv)
 		}
 		
 	StateHandling:
-		window.clear(sf::Color(225, 225, 245));
+		window.clear(sf::Color((uint8_t) dropoff_r, (uint8_t) dropoff_g, (uint8_t) dropoff_b));
 		switch (PSTATE)
 		{
 		/* People selection screen */
@@ -166,10 +217,28 @@ int main(int argc, char** argv)
 					r.BuildPersonInfoBuffer(peopleStorage.GetPeople().at(PPPLSELSUBJ));
 					goto StateHandling; // Re-execute loop
 				}
+
+				if (!r.IsPassiveHistory() && ((sf::Sprite*) r.GetSortByBuffer().at(SORT_BY_PRE_ISLAMIC).get())->getGlobalBounds().contains((sf::Vector2f) sf::Mouse::getPosition()))
+				{
+					r.SetSortByOption(r.GetSortByOption() == Renderer::SB_PRE_ISLAMIC ? Renderer::SB_ALL : Renderer::SB_PRE_ISLAMIC);
+				}
+				else if (((sf::Sprite*) r.GetSortByBuffer().at(SORT_BY_ISLAMIC).get())->getGlobalBounds().contains((sf::Vector2f) sf::Mouse::getPosition()))
+				{
+					r.SetSortByOption(r.GetSortByOption() == Renderer::SB_ISLAMIC ? Renderer::SB_ALL : Renderer::SB_ISLAMIC);
+				}
+				else if (((sf::Sprite*) r.GetSortByBuffer().at(SORT_BY_REPUBLIC).get())->getGlobalBounds().contains((sf::Vector2f) sf::Mouse::getPosition()))
+				{
+					r.SetSortByOption(r.GetSortByOption() == Renderer::SB_REPUBLIC ? Renderer::SB_ALL : Renderer::SB_REPUBLIC);
+				}
+				else if (r.GetSpriteMasterQuit().getGlobalBounds().contains((sf::Vector2f)sf::Mouse::getPosition()))
+				{
+					return 0;
+				}
 			}
 
-			r.RenderPeopleBuffer();
+			r.RenderPeopleBuffer(peopleStorage);
 			r.RenderSortByBuffer();
+			r.RenderSpriteMasterQuit();
 
 			if (eMouseMove)
 			{
@@ -219,6 +288,35 @@ int main(int argc, char** argv)
 
 					goto StateHandling;
 				}
+			}
+
+			const float STEP_OFFSET = 10.0f;
+			if (eKeyPress)
+			{
+				switch (eKeyPress->code)
+				{
+				case sf::Keyboard::Key::Down: r.AddScrollOffset( STEP_OFFSET); break;
+				case sf::Keyboard::Key::Up:   r.AddScrollOffset(-STEP_OFFSET); break;
+				default: break;
+				}
+			}
+
+			if (eMousePressed && eMousePressed->button == sf::Mouse::Button::Left)
+			{
+				isDrag = true;
+				lastmousey = (float) eMousePressed->position.y;
+			}
+			if (eMouseReleased && eMouseReleased->button == sf::Mouse::Button::Left)
+			{
+				isDrag = false;
+			}
+
+			if (eMouseMove && isDrag)
+			{
+				float cury = (float) eMouseMove->position.y;
+				float dy   = cury - lastmousey;
+				r.AddScrollOffset(-dy);
+				lastmousey = cury;
 			}
 
 			r.RenderPersonInfoBuffer();

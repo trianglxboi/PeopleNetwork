@@ -1,4 +1,9 @@
 {
     "LoadRule": "LoadAll",
-    "LoadAllRoot": "Resources/People"
+    "LoadAllRoot": "Resources/People",
+    "LoadAllExcludes": [
+        "Resources/People/Testing/Arif.ppnw.json",
+        "Resources/People/Testing/SCP.ppnw.json",
+        "Resources/People/Testing/Veba.ppnw.json"
+    ]
 }

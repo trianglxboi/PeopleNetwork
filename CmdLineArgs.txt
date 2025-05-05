@@ -3,24 +3,36 @@
 /window_width <width: int>   - Overrides window width
 /window_height <height: int> - Overrides window height
 /windowed                    - Makes the window start windowed
+/window_control              - Disables forced 1920x1080 mode (will probably mess some stuff up and even worse if using windowed mode)
+/dropoff_r <dropoff: uint8>  - Sets window clear R color
+/dropoff_g <dropoff: uint8>  - Sets window clear G color
+/dropoff_b <dropoff: uint8>  - Sets window clear B color
 /font_regular <file: str>    - Overrides default regular font load file
 /font_bold <file: str>       - Overrides default bold font load file
 /font_italic <file: str>     - Overrides default italic font load file
 /load_data <file: str>       - Overrides the default person load data file
 /allowdyn                    - Allows dynamically toggling windowed/fullscreen mode using F11
 /tooltip_font <ONE OF: regular/bold/italic> - Sets font to use with person tooltip text
-/wrap_content_tolerance <tolerance: int> - Sets the PeopleStorage m_WrapContentTolerance for each Person::PopulateFromJson call.
+/wrap_content_tolerance <tolerance: int> - Sets the PeopleStorage m_WrapContentTolerance for each Person::PopulateFromJson call. Set to MAX_SIZE for no wrap.
 
 === RENDERER ===
 /xscalefactor <factor: float>  - Sets the person tooltip position x size scale factor per char
 /radii_scalar <scalar: float>  - Sets override for default IMPORTANCE_BASE_RADII_SCALAR
 /detail_factor <factor: int>   - Sets override for default CIRCLE_RENDER_DETAIL_FACTOR
+/outline_factor <factor: int>  - Sets outline color difference relative to person circle fill color by minus operation, NOTE: NO LONGER FUNCTIONAL DUE TO CODE CHANGE.
+/outline_visib <visib: int>    - Sets outline thickness for person circle.
+/outline_r <value: int>        - Sets outline R color for person circle.
+/outline_g <value: int>        - Sets outline G color for person circle.
+/outline_b <value: int>        - Sets outline B color for person circle.
 /hard_fix_disable              - Disables "Ýslamiyet Öncesi Dönemi Düþünürü" 'i' fall hardfix. Useful if crashing due to change within string size.
 /return_button <file: str>     - Sets the return button image file
 /pre_islamic_sb <file: str>    - Sets the PreIslamic period sort/by image file
 /islamic_sb <file: str>        - Sets the Islamic period sort/by image file
 /republic_sb <file: str>       - Sets the Republic period sort/by image file
+/master_quit <file: str>       - Sets the master quit button image file
 /passive_history               - Disables sort/by options for the PreIslamic HistoryPeriod.
 /favor_x <favor: float>        - Sets the initial x offset for first sort/by option button.
 /favor_y <favor: float>        - Sets the constant y offset for all sort/by option buttons.
 /favor_xsepfactor <factor: float> - Set the x seperation offset for next sort/by option buttons (has no effect for the 1st).
+/master_shift_x <shift: float> - MASTER X POSITION SHIFT (POSITIVE OFFSET) FOR ALL PERSON CIRCLES.
+/master_shift_y <shift: float> - MASTER Y POSITION SHIFT (POSITIVE OFFSET) FOR ALL PERSON CIRCLES.

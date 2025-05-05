@@ -37,7 +37,8 @@ namespace PeopleNetwork
 		}
 		for (const std::filesystem::path& file : std::filesystem::recursive_directory_iterator(root))
 		{
-			std::string fstr = file.string();
+			std::string fstr = std::filesystem::relative(file).string();
+			std::replace(fstr.begin(), fstr.end(), '\\', '/');
 			if (fstr.ends_with(m_PersonFileExtension) && std::find(excludes.begin(), excludes.end(), fstr) == excludes.end())
 			{
 				if (!LoadFromFile(fstr))

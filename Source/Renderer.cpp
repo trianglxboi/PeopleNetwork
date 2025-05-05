@@ -21,9 +21,20 @@ namespace PeopleNetwork
 
 		float radiiScalar = IMPORTANCE_BASE_RADII_SCALAR;
 		int detailFactor  = CIRCLE_RENDER_DETAIL_FACTOR;
+		int outline_factor = 50;
+		int outline_visib = 5;
 
 		OVERRIDE_FROM_CMDLINE_FLT("/radii_scalar", radiiScalar);
 		OVERRIDE_FROM_CMDLINE_INT("/detail_factor", detailFactor);
+		OVERRIDE_FROM_CMDLINE_INT("/outline_factor", detailFactor);
+		OVERRIDE_FROM_CMDLINE_INT("/outline_visib", outline_visib);
+
+		int outline_r = 200;
+		int outline_g = 200;
+		int outline_b = 225;
+		OVERRIDE_FROM_CMDLINE_INT("/outline_r", outline_r);
+		OVERRIDE_FROM_CMDLINE_INT("/outline_g", outline_g);
+		OVERRIDE_FROM_CMDLINE_INT("/outline_b", outline_b);
 
 		sf::CircleShape& shape = m_PeopleBuffer[person.Handle] = sf::CircleShape
 		(
@@ -33,8 +44,27 @@ namespace PeopleNetwork
 		shape.setOrigin({ shape.getRadius(), shape.getRadius() });
 		const Person::StructDataGUI& gui = person.DataGUI;
 
+		float master_shift_x = 0.0f,
+		   	  master_shift_y = 0.0f;
+
+		OVERRIDE_FROM_CMDLINE_FLT("/master_shift_x", master_shift_x);
+		OVERRIDE_FROM_CMDLINE_FLT("/master_shift_y", master_shift_y);
+
 		shape.setFillColor({ (uint8_t) gui.Color.R, (uint8_t) gui.Color.G, (uint8_t) gui.Color.B, 0xff });
-		shape.setPosition({ m_Window.getSize().x / 2.0f + (float) gui.Position.X, m_Window.getSize().y / 2.0f + (float) gui.Position.Y });
+		shape.setPosition
+		({
+			(m_Window.getSize().x / 2.0f + (float) gui.Position.X) + master_shift_x,
+			(m_Window.getSize().y / 2.0f + (float) gui.Position.Y) + master_shift_y
+		});
+		//shape.setOutlineColor
+		//({
+		//	(uint8_t) std::clamp((uint8_t)(gui.Color.R - outline_factor), (uint8_t) 0, (uint8_t) 255),
+		//	(uint8_t) std::clamp((uint8_t)(gui.Color.G - outline_factor), (uint8_t) 0, (uint8_t) 255),
+		//	(uint8_t) std::clamp((uint8_t)(gui.Color.B - outline_factor), (uint8_t) 0, (uint8_t) 255),
+		//	255
+		//});
+		shape.setOutlineColor({ (uint8_t) outline_r, (uint8_t) outline_g, (uint8_t) outline_b, 255});
+		shape.setOutlineThickness(outline_visib);
 	}
 
 	void Renderer::BuildPeopleBuffer(const std::vector<Person>& people)
@@ -89,7 +119,7 @@ namespace PeopleNetwork
 		load(islamicFile,    m_TextureIslamic,    m_bLoadedTextureIslamic,    "Islamic");
 		load(republicFile,   m_TextureRepublic,   m_bLoadedTextureRepublic,   "Republic");
 
-		bool passive_history = false;
+		passive_history = false;
 		OVERRIDE_FROM_CMDLINE_FLG("/passive_history", passive_history);
 
 		float initial_favor_x = 25.0f;
@@ -173,9 +203,9 @@ namespace PeopleNetwork
 
 		std::shared_ptr<sf::Text> textShortDesc = std::make_shared<sf::Text>(m_FontData.Regular, contentShortDesc, 32);
 		m_PersonInfoBuffer[PERSON_INFO_SHORT_DESC] = textShortDesc;
-
+		
 		textShortDesc->setFillColor(sf::Color::Black);
-		textShortDesc->setPosition({ 40.0f, 100.0f });
+		textShortDesc->setPosition({ 35.0f, 100.0f });
 
 		std::wstring contentMain;
 		for (const Person::ContentSection& section : person.ContentSections)
@@ -187,11 +217,12 @@ namespace PeopleNetwork
 		}
 
 		std::shared_ptr<sf::Text> textContent = std::make_shared<sf::Text>(m_FontData.Regular, contentMain, 24);
-		m_PersonInfoBuffer[PERSON_INFO_CONTENT] = textContent;
-
+		m_PersonInfoBuffer[PERSON_INFO_CONTENT_TEXT] = textContent;
+		
 		textContent->setFillColor(sf::Color::Black);
-		textContent->setPosition({ 40.0f, 186.0f });
-
+		//textContent->setPosition({ 40.0f, 186.0f });
+		m_ContentTexture = sf::RenderTexture(sf::Vector2u((uint32_t) m_Window.getSize().x, (uint32_t)textContent->getGlobalBounds().size.y));
+		
 		const char* retButton = "Resources/Sprites/Button_Return.png";
 		OVERRIDE_FROM_CMDLINE_STR("/return_button", retButton);
 
@@ -210,12 +241,76 @@ namespace PeopleNetwork
 		sprite->setScale(sprite->getScale() / 3.0f);
 	}
 
-	void Renderer::RenderPeopleBuffer()
+	void Renderer::InitMasterQuit()
+	{
+		int adj;
+
+		const char* master_quit = "Resources/Sprites/Button_MasterQuit.png";
+		OVERRIDE_FROM_CMDLINE_STR("/master_quit", master_quit);
+
+		if (!m_TextureMasterQuit.loadFromFile(master_quit))
+		{
+			LOG_ERROR("Failed to load MQ button image from file '" << master_quit << "'!");
+			std::exit(EXIT_FAILURE);
+		}
+
+		m_SpriteMasterQuit = sf::Sprite(m_TextureMasterQuit);
+		m_SpriteMasterQuit.setOrigin({ m_TextureMasterQuit.getSize().x / 2.0f, m_TextureMasterQuit.getSize().y / 2.0f });
+		m_SpriteMasterQuit.setPosition({ m_Window.getSize().x - 100.0f, m_Window.getSize().y - 100.0f });
+		m_SpriteMasterQuit.setScale(m_SpriteMasterQuit.getScale() / 3.0f);
+	}
+
+	void Renderer::RenderPeopleBuffer(const PeopleStorage& ps)
 	{
 		for (auto&& [person, shape] : m_PeopleBuffer)
 		{
-			m_Window.draw(shape);
+			Person::HistoricalPeriod period = ps.GetPeople().at(person).Period;
+			switch (m_SortByOption)
+			{
+			case SB_ALL:
+			{
+				if (period == Person::HistoricalPeriod::PreIslamic && passive_history)
+				{
+					continue;
+				}
+				m_Window.draw(shape);
+				break;
+			}
+			case SB_PRE_ISLAMIC:
+			{
+				if (passive_history)
+				{
+					continue;
+				}
+				if (period == Person::HistoricalPeriod::PreIslamic)
+				{
+					m_Window.draw(shape);
+				}
+				break;
+			}
+			case SB_ISLAMIC:
+			{
+				if (period == Person::HistoricalPeriod::Islamic)
+				{
+					m_Window.draw(shape);
+				}
+				break;
+			}
+			case SB_REPUBLIC:
+			{
+				if (period == Person::HistoricalPeriod::Republic)
+				{
+					m_Window.draw(shape);
+				}
+				break;
+			}
+			}
 		}
+	}
+
+	void Renderer::RenderSpriteMasterQuit()
+	{
+		m_Window.draw(m_SpriteMasterQuit);
 	}
 
 	void Renderer::RenderPersonTooltip(PRSHANDLE ih, std::wstring_view name, const sf::Font& font)
@@ -257,9 +352,20 @@ namespace PeopleNetwork
 
 	void Renderer::RenderPersonInfoBuffer()
 	{
+		sf::Text* text = (sf::Text*) m_PersonInfoBuffer.at(PERSON_INFO_CONTENT_TEXT).get();
+		m_ScrollOffset = std::max(0.0f, std::min(m_ScrollOffset, text->getLocalBounds().size.y - m_ContentViewSize.y));
+
+		m_ContentTexture.clear(sf::Color::Transparent);
+		m_ContentTexture.draw(*text);
+		m_ContentTexture.display();
+
+		sf::Sprite sprite(m_ContentTexture.getTexture());
+		sprite.setTextureRect(sf::IntRect({ 0, (int) m_ScrollOffset }, { (int) m_ContentViewSize.x, (int) m_ContentViewSize.y }));
+		sprite.setPosition({ 35.0f, 180.0f });
+
 		m_Window.draw(*m_PersonInfoBuffer.at(PERSON_INFO_NAME_HEADER));
 		m_Window.draw(*m_PersonInfoBuffer.at(PERSON_INFO_SHORT_DESC));
-		m_Window.draw(*m_PersonInfoBuffer.at(PERSON_INFO_CONTENT));
+		m_Window.draw(sprite);
 		m_Window.draw(*m_PersonInfoBuffer.at(PERSON_INFO_BUTTON_RETURN));
 	}
 
@@ -279,9 +385,20 @@ namespace PeopleNetwork
 				case SB_ISLAMIC:     return L"Ýslamiyet Dönemi";
 				case SB_REPUBLIC:    return L"Cumhuriyet Dönemi";
 				}
+				return {};
 			};
 
 			text->setString(std::wstring(L"Dönem Bazlý Filtrele: ") + sboToStr(m_SortByOption).data());
 		}
+	}
+
+	void Renderer::SetScrollOffset(float offset)
+	{
+		m_ScrollOffset = offset;
+	}
+	
+	void Renderer::AddScrollOffset(float amount)
+	{
+		m_ScrollOffset += amount;
 	}
 }
