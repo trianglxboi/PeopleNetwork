@@ -17,7 +17,7 @@ namespace PeopleNetwork
 		Person();
 
 		std::wstring Name;
-		std::wstring Origin; // Country of Origin
+		std::wstring Origin; // Country of Origin, DEPRECATED, NO LONGER USED!
 		std::wstring ShortDesc;
 
 		enum class HistoricalPeriod

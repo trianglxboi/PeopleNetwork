@@ -4,6 +4,11 @@
     "LoadAllExcludes": [
         "Resources/People/Testing/Arif.ppnw.json",
         "Resources/People/Testing/SCP.ppnw.json",
-        "Resources/People/Testing/Veba.ppnw.json"
+        "Resources/People/Testing/Veba.ppnw.json",
+		
+		"Resources/People/Testing2/Uno.ppnw.json",
+		"Resources/People/Testing2/Duo.ppnw.json",
+		"Resources/People/Testing2/Tres.ppnw.json",
+		"Resources/People/Testing2/Four.ppnw.json"
     ]
 }

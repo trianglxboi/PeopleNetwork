@@ -16,9 +16,6 @@ namespace PeopleNetwork
 		{ Person::MidImportance,  15.0f },
 		{ Person::HighImportance, 22.5f }
 	};
-	inline constexpr float IMPORTANCE_BASE_RADII_SCALAR = 1.0f;
-	inline constexpr int   CIRCLE_RENDER_DETAIL_FACTOR  = 360; // vertices per circle
-	inline constexpr float FACTOR_SHIFT_PERSON_TOOLTIP  = 12.0f; // xpos shift
 
 	typedef uint8_t  SORTBYHANDLE;
 	inline constexpr SORTBYHANDLE INVALID_SORT_BY_HANDLE = 0x0;
@@ -84,8 +81,6 @@ namespace PeopleNetwork
 		const sf::Sprite& GetSpriteMasterQuit() const { return m_SpriteMasterQuit; }
 		const std::unordered_map<SORTBYHANDLE, std::shared_ptr<sf::Drawable>>& GetSortByBuffer() const { return m_SortByBuffer; }
 		const std::unordered_map<PRSINFHANDLE, std::shared_ptr<sf::Drawable>>& GetPersonInfoBuffer() const { return m_PersonInfoBuffer; }
-
-		bool IsPassiveHistory() const { return passive_history; }
 	private:
 		RendererFontData m_FontData;
 		sf::RenderWindow& m_Window;
@@ -103,11 +98,8 @@ namespace PeopleNetwork
 		std::unordered_map<PRSINFHANDLE, std::shared_ptr<sf::Drawable>> m_PersonInfoBuffer;
 		sf::Texture m_TextureRetButton; bool m_bLoadedTextureRetButton = false;
 		std::string m_PersonInfoContentBuffer;
-		sf::View m_PersonInfoContentView;
-		sf::Vector2f m_ContentViewSize = { 1920.0f, 1080.0f };
 		sf::RenderTexture m_ContentTexture;
+		float m_PersonInfoTextHeight = 0.0f;
 		float m_ScrollOffset = 0.0f;
-
-		bool passive_history = false;
 	};
 }

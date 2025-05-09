@@ -1,0 +1,25 @@
+{
+	"Name": "Ahmed Yesevi",
+	"Desc": "Yesevî tarikatının pîri",
+	"Period": "Islamic",
+	"Lifetime": [ 1093, 1166 ],
+	"Importance": "Mid",
+	"GUI": {
+		"Position": [ 3, 55 ],
+		"Color": [ 66, 87, 124 ]
+	},
+	"Content": {
+		"0": {
+			"Header": "Ön Bilgi",
+			"Content": "• Doğum Yeri: Çimkent\n• Ölüm Yeri: Yesi (Türkistan)\n• Hocaları: Arslan Baba, Yûsuf el-Hemedânî\n• Öğrencileri: Mansur Atâ, Saîd Atâ, Hakîm Atâ\n• Etkilendikleri: Hallâc-ı Mansur\n• Etkiledikleri: Hazînî Ahmed b. Mahmûd, Bahâeddin Nakşibend, Yunus Emre\n• Ekolleri: Tasavvuf, Bayramîlik, Haydarîlik\n• Etkilediği Ekoller: Haydarîlik"
+		},
+		"1": {
+			"Header": "Hayatı",
+			"Content": "Ahmed Yesevî, XI. yüzyılın ikinci yarısında Kazakistan’ın Çimkent şehri yakınlarındaki Sayram kasabasında doğdu. Babası Sayram’ın tanınan sûfîlerinden Şeyh İbrahim’dir. Yedi yaşında babasını kaybetti ve ailesi ile birlikte Yesi’ye (bugünkü adıyla Türkistan) yerleşti. İlk eğitimini babasından alan Ahmed Yesevî, onun vefatından sonra eğitimine Arslan Bab’ın nezâretinde devam etti. Arslan Bab’ın vefatından sonra ise onun işâreti ile Buhara’ya giderek Yusuf Hemedânî’ye intisap etti. 555/1160’da Yusuf Hemedânî’nin halefi olarak onun dergâhında hizmette bulundu. Sonrasında Yesi’ye dönerek orayı mesken tuttu, irşat faaliyetlerini burada sürdürdü. Rivâyete göre 63 yaşında dergâhın avlusunda bir yer altı mescidi yaptırarak vefatına kadar burada ibadet ile meşgul oldu. 562/1166 yılında Yesi’de vefat etti. Orta Asya Türkleri arasında popüler bir isim haline gelen Ahmed Yesevî’nin türbesi XIV. yüzyılın sonunda Tîmur tarafından yaptırıldı."
+		},
+		"2": {
+			"Header": "Önemli Eserleri",
+			"Content": "• Divân-ı Hikmet\n• Fakrname"
+		}
+	}
+}

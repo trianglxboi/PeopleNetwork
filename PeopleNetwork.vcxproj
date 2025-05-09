@@ -159,13 +159,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Renderer.cpp" />
     <ClCompile Include="Source\CommandLine.cpp" />
     <ClCompile Include="Source\FileUtil.cpp" />
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="Source\PeopleLoadData.cpp" />
     <ClCompile Include="Source\PeopleStorage.cpp" />
     <ClCompile Include="Source\Person.cpp" />
+    <ClCompile Include="Source\Renderer.cpp" />
     <ClCompile Include="Source\StringUtil.cpp" />
     <ClCompile Include="Vendor\jsoncpp\jsoncpp.cpp" />
   </ItemGroup>

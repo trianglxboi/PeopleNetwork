@@ -1,0 +1,29 @@
+{
+	"Name": "Abdünnafi Efendi",
+	"Desc": "19.yy Osmanlı dil, mantık ve hadis alimi",
+	"Period": "Islamic",
+	"Lifetime": [ 1823, 1890 ],
+	"Importance": "Mid",
+	"GUI": {
+		"Position": [ -55, -25 ],
+		"Color": [ 255, 233, 124 ]
+	},
+	"Content": {
+		"0": {
+			"Header": "Ön Bilgi",
+			"Content": "• Tam İsim: Ramazanzâde Muhammed b. Hasan Abdünnâfi İffet Efendi\n• Doğum Yeri: Adana\n• Ölüm Yeri: Taif\n• Hocaları: Buharalı Abdürrahim Efendi\n• Etkilendikleri: Gelenbevî İsmâ'îl Efendi\n• Ekolleri: Felsefe, Kelam, Mantık, Yeni-Eşarîlik\n• Etkilendiği Ekoller: Yeni-Eşarîlik"
+		},
+		"1": {
+			"Header": "Hayatı",
+			"Content": "Abdünnâfî Efendi, 1823 yılında Adana’da doğdu. Babası, Hacı İshak Efendi’nin oğlu, eski Adana müftüsü olan Muhammed Said Efendi’dir. Ramazanoğulları hanedanına bağlı olduğu için Ramazanzâde, iffeti ile temayüz eden bir kişiliğe sahip olduğu için İffet Efendi künyeleri ile anılmaktadır. İstanbul ve Şam’da hadis eğitimi almıştır. Hocalarından Buharalı Abdürrahim Efendi meşhurdur. Bursa müderrisliğinden mezun olduktan sonra Anadolu, Balkanlar ve Şam topraklarında çeşitli memurluk görevlerine tayin edilmiştir. Kâdîrî tarikatine mensuptur. 1891 yılında hac vazifesini yerine getirdikten sonra Tâif’de vefat etmiştir."
+		},
+		"2": {
+			"Header": "Öne Çıkan Eserleri",
+			"Content": "• Terceme-i Burhân-ı Gelenbevî: Mîzânu’l-Burhân / Mizan-ı Şerh-i Mütercim-i Burhân, Matbaa-i Âmire, İstanbul 1295; nşr. İbrahim Çapak, Mesud Öğmen, Abdullah Demir, Türkiye Yazma Eserler Kurumu Başkanlığı, İstanbul 2019. (Gelenbevî’nin Burhân adlı mantık eserinin geniş bir şerh halinde tercümesidir).\n• Terceme-i Âdâb-ı Gelenbevî: Matbaa-i Osmâniye, 1884-85. (Gelenbevî’nin Âdâbu’l-Bahs risalesinin tercüme ve şerhidir) \n• en-Nef‘u’l-Muavvel fî Tercemeti’t-Telhîs ve’l-Mutavvel: Bosna Vilayet Matbaası, Saray Bosna 1872/1289-1290. (Teftâzânî’nin Mutavvel adlı belâgat eserinin tercümesidir).\n• Tercüme-i Nuhbeti’l-Fiker: Ma‘mûretülazîz [Elazığ] 1301. (İbn Hacer’in hadis usulüne dair Nuhbetü’l-Fiker adlı eserinin tercümesidir).\n• Nâfi‘u’l-Âsâr Nevbâve-i Simâru’l-Esmâr: İstanbul 1286. (Hümâyunnâme’nin bazı bölümlerinin manzum hale getirilerek yeniden telif edildiği bir eserdir).\n• Muntehabât-ı Nâfia-i Risâle-i Kuşeyriyye: İstanbul 1307. (Kuşeyrî Risâlesi’nin bir bölümünün tercümesidir).\n• Kâmilu’l-Âsâr Hikâye-i Cihândâr: Hanya 1291.\n• Peyâm-ı Sûr: İstanbul 1274/1857.\n• Rehber-i Seyr ü Sülûk: (Kâsım Hanî’nin Kitâb-ı Seyr ü Sülük adlı eserinin şerh ve tercümesidir.)\n• Divan-ı Eş'âr: (İbnülemin Mahmud Kemal İnal Kütüphanesi’ndedir.)\n• Terceme-i Mukaddime-i İbn Hişâm.\n• Ravzatü'l-Fesâhat.\n• Mahzen-i Esrâr-ı Şuarâ: 1273. (Aruz ve kafiyeye dair telif edilmiş bir eserdir)."
+		},
+		"3": {
+			"Header": "Öğretisi",
+			"Content": "Abdünnâfî Efendi’nin belki de en mümeyyiz vasfı, klasik İslam mantıkçılarının görüşlerini, o dönemde yeni yeni tercüme edilmekte olan modern Batılı mantıkçıların görüşleri ile kıyaslaması ve bu ikinci gruptakileri eleştirmesidir. Bu anlamda Batı’daki mantık çalışmalarına eklemlenen ilk İslam düşünürü olma vasfını haizdir. Batı’da olduğu gibi mantığın matematik ile özdeşleştirilmesine karşı çıkar. Klasik İslam mantığına verdiği önemin ispatı ise, her ne kadar şu an elimizde bulunmasa da, İbn Sînâ’nın Şifâ adlı eserine yazmış olduğu şerhtir. Bununla beraber, Abdünnâfî Efendi’nin mantık konusunda müteahhir mantıkçıları takip ettiğini söylemek gerekir. Örneğin, küllî-i tabîʿi ve küllî-i aklî’nin zihin dışında varlıklarını reddeder. Mantığın konusunu, bilinmeyenlere ulaştırması bakımından tasavvur ve tasdik şeklinde belirler. Kıyasta dördüncü şeklin kullanılmasını uygun görür. Tasdiki hükme bitişen idrak olarak tanımlar. Öte taraftan Abdünnâfî Efendi’nin mütekaddim mantıkçıları izlediği konular da mevcuttur. Örneğin o, Farâbî’ye uyarak önermeleri nicelikleri bakımından dörde ayırır (tekil, tabi'î, belirsiz ve belirli). Abdünnâfî Efendi’nin fizik teorisi, Yeni-Eflâtuncu dünya-merkezli südûr teorisinin reddine dayanır. Dolayısıyla kelamcılara uyarak alemin sonradan var olduğunu ve evrenin merkezinde güneşin bulunduğunu savunur. Bununla birlikte Batı’da da etkin olan atomculuğu eleştirmiş ve Meşşâî madde-suret teorisini kabul etmiştir."
+		}
+	}
+}

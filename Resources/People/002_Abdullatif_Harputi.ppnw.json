@@ -1,0 +1,29 @@
+{
+	"Name": "Abdüllatif Harputi",
+	"Desc": "Son dönem Osmanlı âlimi",
+	"Period": "Islamic",
+	"Lifetime": [ 1842, 1916 ],
+	"Importance": "Low",
+	"GUI": {
+		"Position": [ 55, -10 ],
+		"Color": [ 178, 255 ]
+	},
+	"Content": {
+		"0": {
+			"Header": "Ön Bilgi",
+			"Content": "• Doğum Yeri: Harput\n• Ölüm Yeri: İstanbul\n• Hocaları: Müftü Ömer Naîmî Efendi, Beyzade Hacı Ali Efendi, Şeyhülislam Uryanizade Esad Efendi\n• Öğrencileri: Tokatlı Mehmed Efendi\n• İletişimde Bulunduğu İsimler: Ticaret ve Nafia nazırı Zihni Paşa\n• Bulunduğu Medreseler: Fatih Medresesi, Darülfünun\n• Ekolleri: Felsefe, Kelam"
+		},
+		"1": {
+			"Header": "Hayatı",
+			"Content": "Son dönem Osmanlı âlimlerinden olan Abdüllatif Harpûtî 1842’de Harput’ta doğdu. İlk tahsilini yakın akrabası da olan Ömer Naimi Efendi’den aldı. Sonrasında İstanbul’da Fatih Medresesi’nde okudu. Çeşitli dönemlerde Beyzâde Hacı Ali Efendi, Şeyhülislâm Uryanizâde Esad Efendi, Necib Efendi gibi isimlere intisap etti. Dârülfünûn ve Medresetü’l-Vâizîn gibi müesseselerde ilm-i kelâm müderrisliği yaptı. Harpûtî, 1916 yılında İstanbul’da vefat etti."
+		},
+		"2": {
+			"Header": "Öne Çıkan Eserleri",
+			"Content": "• Mecâlisü’l-Envâri’l-Ahadiyye ve Mecâmiu’l-Esrâri’l-Muhammediyye: İstanbul, 1306, 1311, 1313; çev. Ahmet Aslantürk, Abdullatif, İstanbul 1981.\n• Tenkîhu’l-Kelâm fi Akaidi Ehli’l-İslâm: İstanbul, 1327, 1330; Tenkihu’l-Kelâm Fi Akâid-i Ehli’l-İslâm (Kelâmi Perspektiften İslâm İnanç Esasları), çev. İbrahim Özdemir, Fikret Karaman, Türkiye Diyanet Vakfı Elazığ Şubesi Yayınları, Elazığ 2000.\n• Tarih-i İlm-i Kelâm: İstanbul 1332; Kelâm Tarihi, sad. Muammer Esen, Ankara Okulu Yayınları, Ankara 2005."
+		},
+		"3": {
+			"Header": "Öğretisi",
+			"Content": "Harpûtî, son dönem Osmanlı düşüncesinde kelâmda yenilik arayışlarının gelişme kaydettiği bir dönemin önemli isimlerinden birisi olarak gözükür. Tenkîhu’l-kelâm isimli eseri bu anlayışla kaleme alınmış bir eserdir. Eser, ilahiyyat, nübüvvat, semiyyat, imamet gibi klasik kelâm eserlerinde görülen tasnifi devam ettirse de kelâm ilminin dayandığı deliller ve muhatap aldığı kitle noktasında değişiklikler yapılması fikrini taşımaktaydı. Harpûtî hem klasik dönemdeki kelâm ilminin muhataplarının değişmesinden hem de klasik kelâmın dayandığı bilimsel çerçevenin değişmesinden dolayı kelâm ilminin materyalizm ve pozitivizm gibi zamanın yeni akımlarını ve yeni bilimsel gelişmeleri dikkate alan bir şekilde yeniden tesis edilmesi gerektiğini savunuyordu. Bu itibarla bu eserde daha çok İslâm dini ile modern bilim arasında keskin bir ayrılık olmadığı fikri vurgulanır. O, kelâm ilminin kullandığı verilerin zamanla değişebileceği düşüncesinden hareketle ısı, ışık, madde, kuvvet, elektrik gibi modern bilimin çeşitli verilerini kullanan kelâmî bir yaklaşım sunar. Harpûtî’nin Tarih-i İlm-i Kelâm isimli eseri de onun yeni yaklaşımlarına yönelik tutumunu yansıtır niteliktedir. O sadece kelâm mezheplerini tanıtmakla kalmaz aynı zamanda Yahudilik, Hıristiyanlık, Mecûsîlik, Sabiilik gibi dinler ile Tabiatçılık, Materyalizm, Dehrîlik ve Meşşâîlik gibi felsefi akımlar ve bunların kelâmla ilişkileri hakkında da bilgiler verir."
+		}
+	}
+}

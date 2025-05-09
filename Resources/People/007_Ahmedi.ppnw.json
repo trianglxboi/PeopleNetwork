@@ -1,0 +1,25 @@
+{
+	"Name": "Ahmedi",
+	"Desc": "İlk İskendernâme yazarı ve divan şâiri",
+	"Period": "Islamic",
+	"Lifetime": [ 1335, 1413 ],
+	"Importance": "Low",
+	"GUI": {
+		"Position": [ 40, 75 ],
+		"Color": [ 0, 255, 255 ]
+	},
+	"Content": {
+		"0": {
+			"Header": "Ön Bilgi",
+			"Content": "• Doğum Yeri: Sivas\n• Ölüm Yeri: Amasya\n• Hocaları: Muhammed b. Mübârekşah, Bâbertî\n• Etkilendikleri: Kutbuddîn er-Râzî\n• Etkiledikleri: Ahmed Paşaİletişimde Bulunduğu İsimler: Molla Fenârî, Seyyid Şerîf Cürcânî, Şeyh Bedreddîn Hacı Paşa\n• Ekolleri: Edebiyat, Felsefe"
+		},
+		"1": {
+			"Header": "Hayatı",
+			"Content": "Erken dönem Osmanlı ilim ve edebiyat dünyasının önemli isimlerindendir. Tam olarak tespit edilememekle birlikte 734/1334-35’te Germiyan ya da Sivas’ta doğduğu tahmin edilir.  Osmanlı ilim geleneğinin önemli isimlerinden Molla Fenârî, Şeyh Bedreddîn ve Hacı Paşa’nın yanı sıra Seyyid Şerif Cürcânî ile birlikte bir müddet Kahire’de bulunduğu ve Kutbüddîn er-Râzî, Şeyh Ekmeleddîn gibi isimlerden ders aldığı bilinir. Anadolu’ya döndükten sonra bir müddet Aydınoğlulları ve Germiyanoğulları Beyliklerinin himayesinde bulunmuş, ardından Osmanoğulları’nın himayesine girerek Bursa’da ikamet etmiştir. Ahmedî 815/1412-13 senesinde Amasya’da vefat etmiştir."
+		},
+		"2": {
+			"Header": "Öne Çıkan Eserleri",
+			"Content": "• Dîvân: haz. Yaşar Akdoğan, “Ahmedî Divanı I-II: Tenkitli Metin ve Dil Hususiyetleri”, Yayınlanmamış Doktora Tezi, İstanbul Üniversitesi, İstanbul 1979).\n• İskendernâme: Süleymaniye Ktp. Karaçelebizâde Hüsâmeddin, nr. 330; Lâleli, nr. 3030; nşr. İsmail Ünver, Ankara 1983.\n• Mirkâtü’l-Edeb: Konya Mevlânâ Müzesi, nr. 2540/1.\n• Mîzânü’l-Edeb: Konya Mevlânâ Müzesi, nr. 2540/1.\n• Mi‘yârü’l-Edeb: Konya Mevlânâ Müzesi, nr. 2540/1.\n• Bedâyiu’s-Sihr fî Sanâyii’ş-Şi‘r: Konya Mevlânâ Müzesi, nr. 2540/1.\n• Cemşîd ü Hurşîd: Beyazıt Devlet Ktp. Veliyyüddin Efendi, nr. 2122; nşr. Mehmed Akalın, Ankara 1975.\n• Tervîhu’l-Ervâh: Süleymaniye Ktp., Ayasofya, nr. 3595."
+		}
+	}
+}

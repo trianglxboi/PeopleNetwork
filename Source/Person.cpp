@@ -1,5 +1,6 @@
 #include "Person.h"
 
+#include "CommandLine.h"
 #include "StringUtil.h"
 #include "FileUtil.h"
 
@@ -66,13 +67,13 @@ namespace PeopleNetwork
 		}
 
 		Name = StringUtil::u8tow(root["Name"].asString());
-		Origin = StringUtil::u8tow(root["Origin"].asString());
-		ShortDesc = StringUtil::u8tow(root["ShortDesc"].asString());
+		// DEPRECATED! Origin = StringUtil::u8tow(root["Origin"].asString());
+		ShortDesc = StringUtil::u8tow(root["Desc"].asString());
 		Period = HistoricalPeriodFromString(root["Period"].asString());
 		Lifetime = { root["Lifetime"][0].asInt(), root["Lifetime"][1].asInt() };
 		Importance = ImportanceFromString(root["Importance"].asString());
 
-		Json::Value& dataGui = root["DataGUI"];
+		Json::Value& dataGui = root["GUI"];
 		Json::Value& position = dataGui["Position"];
 		Json::Value& color = dataGui["Color"];
 
@@ -82,7 +83,7 @@ namespace PeopleNetwork
 		DataGUI.Color.G = color[1].asInt();
 		DataGUI.Color.B = color[2].asInt();
 
-		Json::Value& contentSection = root["ContentSection"];
+		Json::Value& contentSection = root["Content"];
 		for (size_t i = 0; /*noexpr*/; i++)
 		{
 			std::string istring = std::to_string(i);
@@ -96,20 +97,53 @@ namespace PeopleNetwork
 			sec.Header = StringUtil::u8tow(section["Header"].asString());
 			sec.Content = StringUtil::u8tow(section["Content"].asString());
 
-			if (wrapContentTolerance != DO_NOT_WRAP_CONTENT)
-			{
-				for (size_t i = wrapContentTolerance; i < sec.Content.size(); i += wrapContentTolerance)
-				{
-					if (i + 1 < sec.Content.size() && (isspace(sec.Content[i + 1]) || isspace(sec.Content[i - 1])))
-					{
-						sec.Content.insert(i, L"\n");
-					}
-					else
-					{
-						sec.Content.insert(i, L"-\n");
-					}
-				}
-			}
+			//if (wrapContentTolerance != DO_NOT_WRAP_CONTENT)
+			//{
+			//	std::wstring& content = sec.Content;
+			//	for (size_t i = 0, counter = 1; i < content.size(); i++, counter++)
+			//	{
+			//		if (content[i] == '\n')
+			//		{
+			//			counter = 1;
+			//			continue;
+			//		}
+			//		
+			//		size_t iNext = i + 1;
+			//		if (counter == wrapContentTolerance)
+			//		{
+			//			if (iNext < content.size())
+			//			{
+			//				if (iswalnum(i))
+			//				{
+			//					if (iswalnum(iNext))
+			//					{
+			//						content.insert(i, L"-\n");
+			//						i += 2;
+			//					}
+			//					else
+			//					{
+			//						content.insert(i, L"\n");
+			//						i++;
+			//					}
+			//				}
+			//				else if (iswalnum(iNext))
+			//				{
+			//					if (iswalnum(i))
+			//					{
+			//						content.insert(i, L"-\n");
+			//						i += 2;
+			//					}
+			//					else
+			//					{
+			//						content.insert(i, L"\n");
+			//						i++;
+			//					}
+			//				}
+			//			}
+			//			counter = 1;
+			//		}
+			//	}
+			//}
 		}
 
 		return true;

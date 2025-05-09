@@ -10,29 +10,29 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
-enum ProgramState
+using namespace PeopleNetwork;
+
+enum class ProgramState
 {
-	PPPLSEL, // People selection screen
-	PPRSINF // Person info screen
+	PeopleSelection,
+	PersonInformation
 };
-ProgramState PSTATE = PPPLSEL;
-PeopleNetwork::PRSHANDLE PPPLSELSUBJ = PeopleNetwork::INVALID_PERSON_HANDLE; // People Selection Subject (mouse hovered person)
-PeopleNetwork::Person&   PPRSINFSUBJ = PeopleNetwork::INVALID_PERSON_STRUCT; // Person Info Subject
+
+ProgramState g_ProgramState             = ProgramState::PeopleSelection;
+PRSHANDLE    g_PeopleSelectionSubject   = INVALID_PERSON_HANDLE;
+Person&      g_PersonInformationSubject = INVALID_PERSON_STRUCT;
 
 int main(int argc, char** argv)
 {
-	using namespace PeopleNetwork;
 	g_CmdLine = { argv, argc };
-	int adj = ARG_NONE;
+	g_CommandLineOptions.Populate(g_CmdLine);
 
-	// Note: May be technically memory unsafe, but those must be only deleted at the end of the program.
-	// Since the OS does it manually, we won't bother as we technically need them at all times.
-	if (std::filesystem::exists("RAW_OVERRIDE"))
+	if ((g_CommandLineOptions.PreferRawOverride || g_CmdLine.Size <= 1) && std::filesystem::exists("RAW_OVERRIDE"))
 	{
-		std::string RAW_OVERRIDE;
-		if (FileUtil::Read("RAW_OVERRIDE", RAW_OVERRIDE))
+		std::string rawOverrideContent;
+		if (FileUtil::Read("RAW_OVERRIDE", rawOverrideContent))
 		{
-			std::stringstream ss(RAW_OVERRIDE);
+			std::stringstream ss(rawOverrideContent);
 			std::string word;
 
 			g_CmdLine.List = (char**) malloc(1);
@@ -48,83 +48,54 @@ int main(int argc, char** argv)
 				g_CmdLine.List = (char**) realloc(g_CmdLine.List, g_CmdLine.Size * sizeof(char**));
 				g_CmdLine.List[g_CmdLine.Size - 1] = argument;
 			}
+
+			// Repopulate since g_CmdLine was rebuilt.
+			g_CommandLineOptions.Populate(g_CmdLine);
 		}
 	}
 
-	std::string title = "Kisiler Agi";
-	int width = 0, height = 0;
-	bool windowed = false;
-	bool allowDynamicMode = false, window_control = false;
-
-	int dropoff_r = 225;
-	int dropoff_g = 225;
-	int dropoff_b = 245;
-
-	const char *fontRegularFile = "Resources/Fonts/Roboto-Regular.ttf",
-			   *fontBoldFile    = "Resources/Fonts/Roboto-Bold.ttf",
-			   *fontItalicFile  = "Resources/Fonts/Roboto-Italic.ttf";
-	const char* fontTypePersonTooltip = "regular";
-	const char* peopleLoadDataFile = "Resources/PeopleLoadData.json";
-
-	// Value default optimized only for 1920x1080.
-	size_t wrapContentTolerance = 169;
-
-	OVERRIDE_FROM_CMDLINE_STR("/window_title", title);
-	OVERRIDE_FROM_CMDLINE_INT("/window_width", width);
-	OVERRIDE_FROM_CMDLINE_INT("/window_height", height);
-	OVERRIDE_FROM_CMDLINE_FLG("/windowed", windowed);
-	OVERRIDE_FROM_CMDLINE_FLG("/window_control", window_control);
-	OVERRIDE_FROM_CMDLINE_INT("/dropoff_r", dropoff_r);
-	OVERRIDE_FROM_CMDLINE_INT("/dropoff_g", dropoff_g);
-	OVERRIDE_FROM_CMDLINE_INT("/dropoff_b", dropoff_b);
-	OVERRIDE_FROM_CMDLINE_STR("/font_regular", fontRegularFile);
-	OVERRIDE_FROM_CMDLINE_STR("/font_bold", fontBoldFile);
-	OVERRIDE_FROM_CMDLINE_STR("/font_italic", fontItalicFile);
-	OVERRIDE_FROM_CMDLINE_STR("/tooltip_font", fontTypePersonTooltip);
-	OVERRIDE_FROM_CMDLINE_STR("/load_data", peopleLoadDataFile);
-	OVERRIDE_FROM_CMDLINE_FLG("/allowdyn", allowDynamicMode);
-	OVERRIDE_FROM_CMDLINE_INT("/wrap_content_tolerance", wrapContentTolerance);
-
 	// Load people into memory
-	PeopleStorage peopleStorage; // 
-	peopleStorage.SetWrapContentTolerance(wrapContentTolerance);
+	PeopleStorage peopleStorage;
+	peopleStorage.SetWrapContentTolerance(g_CommandLineOptions.WrapContentTolerance);
 	{
-		PeopleLoadData ldData;
-		if (!ldData.PopulateFromJson(peopleLoadDataFile))
+		PeopleLoadData loadData;
+		if (!loadData.PopulateFromJson(g_CommandLineOptions.LoadData))
 		{
-			LOG_ERROR("Failed to populate the main PeopleLoadData configuration from file '" << peopleLoadDataFile << "'.");
+			LOG_ERROR("Failed to populate the main PeopleLoadData configuration from file '" << g_CommandLineOptions.LoadData << "'.");
 			return EXIT_FAILURE;
 		}
 
-		if (!peopleStorage.LoadFromConfig(ldData))
+		if (!peopleStorage.LoadFromConfig(loadData))
 		{
 			LOG_ERROR("Failed to load people to the main people storage.");
 			return EXIT_FAILURE;
 		}
 	}
 
-	sf::VideoMode fsMode = sf::VideoMode::getDesktopMode();
-	sf::VideoMode wndmode;
+	sf::VideoMode desktopVideoMode = sf::VideoMode::getDesktopMode();
+	sf::VideoMode windowVideoMode;
 
-	if (window_control)
+	if (g_CommandLineOptions.WindowControl)
 	{
-		wndmode = (width == 0 && height == 0) ? windowed ? sf::VideoMode({ 1280, 720 }) : fsMode : sf::VideoMode(sf::Vector2u(width, height));
+		windowVideoMode =
+			(g_CommandLineOptions.WindowWidth == 0 && g_CommandLineOptions.WindowHeight == 0) ?
+			 g_CommandLineOptions.Windowed ? sf::VideoMode({ 1280, 720 }) : desktopVideoMode : sf::VideoMode(sf::Vector2u(g_CommandLineOptions.WindowWidth, g_CommandLineOptions.WindowHeight));
 	}
 	else
 	{
-		wndmode = sf::VideoMode({ 1920, 1080 });
+		windowVideoMode = sf::VideoMode({ 1920, 1080 });
 	}
 
 	sf::RenderWindow window
 	(
-		wndmode,
-		title,
+		windowVideoMode,
+		g_CommandLineOptions.WindowTitle,
 		sf::Style::Default,
-		windowed ? sf::State::Windowed : sf::State::Fullscreen
+		g_CommandLineOptions.WindowControl && g_CommandLineOptions.Windowed ? sf::State::Windowed : sf::State::Fullscreen
 	);
 
-	// FIXME: Doesn't set with fullscreen for some reason.
-	if (title == "Kisiler Agi")
+	// FIXME(?): Doesn't set with fullscreen for some reason, not that it matters.
+	if (g_CommandLineOptions.WindowTitle == "Kisiler Agi")
 	{
 		sf::WindowHandle handle = window.getNativeHandle();
 		SetWindowTextW(handle, L"Kiþiler Aðý");
@@ -135,39 +106,39 @@ int main(int argc, char** argv)
 	{
 		// FIXME(?): If regular succeeds, perhaps we should allow execution and make bold and italic fonts set to the regular one?
 		// Or if any font load succeeds for that matter, perhaps.
-		if (!fontRegular.openFromFile(fontRegularFile))
+		if (!fontRegular.openFromFile(g_CommandLineOptions.FontRegular))
 		{
-			LOG_ERROR("Failed to load regular font '" << fontRegularFile << "'.");
+			LOG_ERROR("Failed to load regular font '" << g_CommandLineOptions.FontRegular << "'.");
 			return EXIT_FAILURE;
 		}
-		if (!fontBold.openFromFile(fontBoldFile))
+		if (!fontBold.openFromFile(g_CommandLineOptions.FontBold))
 		{
-			LOG_ERROR("Failed to load bold font '" << fontBoldFile << "'.");
+			LOG_ERROR("Failed to load bold font '" << g_CommandLineOptions.FontBold << "'.");
 			return EXIT_FAILURE;
 		}
-		if (!fontItalic.openFromFile(fontItalicFile))
+		if (!fontItalic.openFromFile(g_CommandLineOptions.FontItalic))
 		{
-			LOG_ERROR("Failed to load italic font '" << fontItalicFile << "'.");
+			LOG_ERROR("Failed to load italic font '" << g_CommandLineOptions.FontItalic << "'.");
 			return EXIT_FAILURE;
 		}
 	}
 	sf::Font& fontRefPersonTooltip = fontRegular;
-	if (strcmp(fontTypePersonTooltip, "regular") == 1)
+	if (g_CommandLineOptions.TooltipFont == "Regular")
 	{
 		fontRefPersonTooltip = fontRegular;
 	}
-	else if (strcmp(fontTypePersonTooltip, "bold") == 1)
+	else if (g_CommandLineOptions.TooltipFont == "Bold")
 	{
 		fontRefPersonTooltip = fontBold;
 	}
-	else if (strcmp(fontTypePersonTooltip, "italic") == 1)
+	else if (g_CommandLineOptions.TooltipFont == "Italic")
 	{
 		fontRefPersonTooltip = fontItalic;
 	}
 
 	Renderer r({ fontRegular, fontBold, fontItalic }, window);
 	r.BuildPeopleBuffer(peopleStorage.GetPeople());
-	r.BuildSortByBuffer(fontRegular);
+	r.BuildSortByBuffer(fontBold);
 	r.InitMasterQuit();
 
 	bool isDrag = false;
@@ -179,21 +150,22 @@ int main(int argc, char** argv)
 		// Getting all event types we need
 		auto* eKeyPress      = e->getIf<sf::Event::KeyPressed>();
 		auto* eMouseMove     = e->getIf<sf::Event::MouseMoved>();
+		auto* eMouseScrolled = e->getIf<sf::Event::MouseWheelScrolled>();
 		auto* eMousePressed  = e->getIf<sf::Event::MouseButtonPressed>();
 		auto* eMouseReleased = e->getIf<sf::Event::MouseButtonReleased>();
 
 		if (eKeyPress)
 		{
 			// Best to probably convert into a switch statement.
-			if (eKeyPress->code == sf::Keyboard::Key::F11 && allowDynamicMode)
+			if (eKeyPress->code == sf::Keyboard::Key::F11 && g_CommandLineOptions.AllowDynamic)
 			{
-				windowed = !windowed;
+				g_CommandLineOptions.Windowed = !g_CommandLineOptions.Windowed;
 				window.create
 				(
-					wndmode,
-					title,
+					windowVideoMode,
+					g_CommandLineOptions.WindowTitle,
 					sf::Style::Default,
-					windowed ? sf::State::Windowed : sf::State::Fullscreen
+					g_CommandLineOptions.Windowed ? sf::State::Windowed : sf::State::Fullscreen
 				);
 			}
 			else if (eKeyPress->code == sf::Keyboard::Key::Q || eKeyPress->code == sf::Keyboard::Key::Escape)
@@ -203,22 +175,59 @@ int main(int argc, char** argv)
 		}
 		
 	StateHandling:
-		window.clear(sf::Color((uint8_t) dropoff_r, (uint8_t) dropoff_g, (uint8_t) dropoff_b));
-		switch (PSTATE)
+		window.clear(sf::Color(g_CommandLineOptions.DropoffR, g_CommandLineOptions.DropoffG, g_CommandLineOptions.DropoffB));
+		switch (g_ProgramState)
 		{
 		/* People selection screen */
-		case PPPLSEL:
+		case ProgramState::PeopleSelection:
 		{
+		#ifndef NDEBUG
+			{
+				sf::Text textReload(fontItalic, L"[Geliþtirici Derlemesi] Çalýþma zamanýnda kiþi bilgilerini yeniden yüklemek için R tuþu kullanýma açýlmýþtýr.", 24);
+				textReload.setPosition({ 10.0f, window.getSize().y - 35.0f });
+				textReload.setFillColor(sf::Color::Red);
+
+				if (eKeyPress && eKeyPress->code == sf::Keyboard::Key::R)
+				{
+					PeopleLoadData loadData;
+					if (!loadData.PopulateFromJson(g_CommandLineOptions.LoadData))
+					{
+						LOG_ERROR("Failed to populate the main PeopleLoadData configuration from file '" << g_CommandLineOptions.LoadData << "'.");
+						return EXIT_FAILURE;
+					}
+
+					if (!peopleStorage.LoadFromConfig(loadData, true))
+					{
+						LOG_ERROR("Failed to load people to the main people storage.");
+						return EXIT_FAILURE;
+					}
+
+					g_PeopleSelectionSubject = INVALID_PERSON_HANDLE;
+					r.BuildPeopleBuffer(peopleStorage.GetPeople());
+				}
+
+				window.draw(textReload);
+			}
+		#endif
+
+			if (!g_CommandLineOptions.DisableAuthority)
+			{
+				sf::Text authorityText(fontRegular, "    Kaan Kadim Levent\nOruç Reis Anadolu Lisesi", 24);
+				authorityText.setPosition({ window.getSize().x - 300.0f, 25.0f });
+				authorityText.setFillColor(sf::Color::Black);
+				window.draw(authorityText);
+			}
+
 			if (eMouseReleased)
 			{
-				if (PPPLSELSUBJ != INVALID_PERSON_HANDLE && r.GetPeopleBuffer().at(PPPLSELSUBJ).getGlobalBounds().contains((sf::Vector2f) sf::Mouse::getPosition()))
+				if (g_PeopleSelectionSubject != INVALID_PERSON_HANDLE && r.GetPeopleBuffer().at(g_PeopleSelectionSubject).getGlobalBounds().contains((sf::Vector2f) sf::Mouse::getPosition()))
 				{
-					PSTATE = PPRSINF;
-					r.BuildPersonInfoBuffer(peopleStorage.GetPeople().at(PPPLSELSUBJ));
+					g_ProgramState = ProgramState::PersonInformation;
+					r.BuildPersonInfoBuffer(peopleStorage.GetPeople().at(g_PeopleSelectionSubject));
 					goto StateHandling; // Re-execute loop
 				}
 
-				if (!r.IsPassiveHistory() && ((sf::Sprite*) r.GetSortByBuffer().at(SORT_BY_PRE_ISLAMIC).get())->getGlobalBounds().contains((sf::Vector2f) sf::Mouse::getPosition()))
+				if (!g_CommandLineOptions.PassiveHistory && ((sf::Sprite*) r.GetSortByBuffer().at(SORT_BY_PRE_ISLAMIC).get())->getGlobalBounds().contains((sf::Vector2f) sf::Mouse::getPosition()))
 				{
 					r.SetSortByOption(r.GetSortByOption() == Renderer::SB_PRE_ISLAMIC ? Renderer::SB_ALL : Renderer::SB_PRE_ISLAMIC);
 				}
@@ -242,9 +251,9 @@ int main(int argc, char** argv)
 
 			if (eMouseMove)
 			{
-				if (PPPLSELSUBJ != INVALID_PERSON_HANDLE)
+				if (g_PeopleSelectionSubject != INVALID_PERSON_HANDLE)
 				{
-					const sf::CircleShape& shape = r.GetPeopleBuffer().at(PPPLSELSUBJ);
+					const sf::CircleShape& shape = r.GetPeopleBuffer().at(g_PeopleSelectionSubject);
 
 					// If mouse is still within the subject circle, we know the hover person did not change, so
 					// we shouldn't check for where it is contained.
@@ -255,7 +264,7 @@ int main(int argc, char** argv)
 					// Subject changed or invalidated.
 					else
 					{
-						PPPLSELSUBJ = INVALID_PERSON_HANDLE;
+						g_PeopleSelectionSubject = INVALID_PERSON_HANDLE;
 					}
 				}
 
@@ -263,28 +272,29 @@ int main(int argc, char** argv)
 				{
 					if (shape.getGlobalBounds().contains((sf::Vector2f) eMouseMove->position))
 					{
-						PPPLSELSUBJ = handle;
+						g_PeopleSelectionSubject = handle;
 						break;
 					}
 				}
 			}
 		PostHoverHandle:
-			if (PPPLSELSUBJ)
+			if (g_PeopleSelectionSubject)
 			{
-				r.RenderPersonTooltip(PPPLSELSUBJ, peopleStorage.GetPeople().at(PPPLSELSUBJ).Name, fontRefPersonTooltip);
+				r.RenderPersonTooltip(g_PeopleSelectionSubject, peopleStorage.GetPeople().at(g_PeopleSelectionSubject).Name, fontRefPersonTooltip);
 			}
 
 			break;
 		}
-		case PPRSINF:
+		case ProgramState::PersonInformation:
 		{
 			if (eMouseReleased)
 			{
 				if (((sf::Sprite*) r.GetPersonInfoBuffer().at(PERSON_INFO_BUTTON_RETURN).get())->getGlobalBounds().contains((sf::Vector2f) sf::Mouse::getPosition()))
 				{
-					PSTATE      = PPPLSEL;
-					PPPLSELSUBJ = INVALID_PERSON_HANDLE;
-					PPRSINFSUBJ = INVALID_PERSON_STRUCT;
+					g_ProgramState             = ProgramState::PeopleSelection;
+					g_PeopleSelectionSubject   = INVALID_PERSON_HANDLE;
+					g_PersonInformationSubject = INVALID_PERSON_STRUCT;
+					r.SetScrollOffset(0.0f);
 
 					goto StateHandling;
 				}
@@ -299,6 +309,11 @@ int main(int argc, char** argv)
 				case sf::Keyboard::Key::Up:   r.AddScrollOffset(-STEP_OFFSET); break;
 				default: break;
 				}
+			}
+
+			if (eMouseScrolled)
+			{
+				r.AddScrollOffset(-eMouseScrolled->delta * 50.0f);
 			}
 
 			if (eMousePressed && eMousePressed->button == sf::Mouse::Button::Left)

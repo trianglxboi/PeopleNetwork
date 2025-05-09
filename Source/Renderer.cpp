@@ -17,54 +17,35 @@ namespace PeopleNetwork
 
 	void Renderer::PushToPeopleBuffer(const Person& person)
 	{
-		int adj;
-
-		float radiiScalar = IMPORTANCE_BASE_RADII_SCALAR;
-		int detailFactor  = CIRCLE_RENDER_DETAIL_FACTOR;
-		int outline_factor = 50;
-		int outline_visib = 5;
-
-		OVERRIDE_FROM_CMDLINE_FLT("/radii_scalar", radiiScalar);
-		OVERRIDE_FROM_CMDLINE_INT("/detail_factor", detailFactor);
-		OVERRIDE_FROM_CMDLINE_INT("/outline_factor", detailFactor);
-		OVERRIDE_FROM_CMDLINE_INT("/outline_visib", outline_visib);
-
-		int outline_r = 200;
-		int outline_g = 200;
-		int outline_b = 225;
-		OVERRIDE_FROM_CMDLINE_INT("/outline_r", outline_r);
-		OVERRIDE_FROM_CMDLINE_INT("/outline_g", outline_g);
-		OVERRIDE_FROM_CMDLINE_INT("/outline_b", outline_b);
-
 		sf::CircleShape& shape = m_PeopleBuffer[person.Handle] = sf::CircleShape
 		(
-			IMPORTANCE_BASE_RADII.at(person.Importance) * radiiScalar,
-			detailFactor
+			IMPORTANCE_BASE_RADII.at(person.Importance) * g_CommandLineOptions.RadiiScalar,
+			g_CommandLineOptions.DetailFactor
 		);
 		shape.setOrigin({ shape.getRadius(), shape.getRadius() });
 		const Person::StructDataGUI& gui = person.DataGUI;
 
-		float master_shift_x = 0.0f,
-		   	  master_shift_y = 0.0f;
-
-		OVERRIDE_FROM_CMDLINE_FLT("/master_shift_x", master_shift_x);
-		OVERRIDE_FROM_CMDLINE_FLT("/master_shift_y", master_shift_y);
-
 		shape.setFillColor({ (uint8_t) gui.Color.R, (uint8_t) gui.Color.G, (uint8_t) gui.Color.B, 0xff });
 		shape.setPosition
 		({
-			(m_Window.getSize().x / 2.0f + (float) gui.Position.X) + master_shift_x,
-			(m_Window.getSize().y / 2.0f + (float) gui.Position.Y) + master_shift_y
+			(m_Window.getSize().x / 2.0f + (float) gui.Position.X) + g_CommandLineOptions.MasterShiftX,
+			(m_Window.getSize().y / 2.0f + (float) gui.Position.Y) + g_CommandLineOptions.MasterShiftY
 		});
-		//shape.setOutlineColor
-		//({
-		//	(uint8_t) std::clamp((uint8_t)(gui.Color.R - outline_factor), (uint8_t) 0, (uint8_t) 255),
-		//	(uint8_t) std::clamp((uint8_t)(gui.Color.G - outline_factor), (uint8_t) 0, (uint8_t) 255),
-		//	(uint8_t) std::clamp((uint8_t)(gui.Color.B - outline_factor), (uint8_t) 0, (uint8_t) 255),
-		//	255
-		//});
-		shape.setOutlineColor({ (uint8_t) outline_r, (uint8_t) outline_g, (uint8_t) outline_b, 255});
-		shape.setOutlineThickness(outline_visib);
+		shape.setOutlineColor({ g_CommandLineOptions.OutlineR, g_CommandLineOptions.OutlineG, g_CommandLineOptions.OutlineB, 255 });
+		shape.setOutlineThickness(g_CommandLineOptions.OutlineThickness);
+
+		if (g_CommandLineOptions.NewOutlineMethod)
+		{
+			switch (person.Period)
+			{
+			case Person::HistoricalPeriod::Islamic:
+				shape.setOutlineColor({ 38, 127, 0, 255 });
+				break;
+			case Person::HistoricalPeriod::Republic:
+				shape.setOutlineColor({ 227, 10, 23, 255 });
+				break;
+			}
+		}
 	}
 
 	void Renderer::BuildPeopleBuffer(const std::vector<Person>& people)
@@ -87,7 +68,6 @@ namespace PeopleNetwork
 
 	void Renderer::BuildSortByBuffer(const sf::Font& font)
 	{
-		int adj;
 		m_SortByBuffer.clear();
 
 		std::shared_ptr<sf::Text> text = std::make_shared<sf::Text>(font, L"UNINITIALIZED_TEXT", 36);
@@ -96,14 +76,6 @@ namespace PeopleNetwork
 
 		text->setFillColor(sf::Color::Black);
 		text->setPosition({ 25.0f, 25.0f });
-
-		const char* preIslamicFile = "Resources/Sprites/Button_PreIslamic.png";
-		const char* islamicFile = "Resources/Sprites/Button_Islamic.png";
-		const char* republicFile = "Resources/Sprites/Button_Republic.png";
-
-		OVERRIDE_FROM_CMDLINE_STR("/pre_islamic_sb", preIslamicFile);
-		OVERRIDE_FROM_CMDLINE_STR("/islamic_sb", preIslamicFile);
-		OVERRIDE_FROM_CMDLINE_STR("/republic_sb", preIslamicFile);
 
 		auto load = [](std::string_view file, sf::Texture& ldTarget, bool& flagTarget, std::string_view logErrorDescriptor)
 		{
@@ -115,32 +87,23 @@ namespace PeopleNetwork
 			flagTarget = true;
 		};
 
-		load(preIslamicFile, m_TexturePreIslamic, m_bLoadedTexturePreIslamic, "PreIslamic");
-		load(islamicFile,    m_TextureIslamic,    m_bLoadedTextureIslamic,    "Islamic");
-		load(republicFile,   m_TextureRepublic,   m_bLoadedTextureRepublic,   "Republic");
+		load(g_CommandLineOptions.PreIslamicSB, m_TexturePreIslamic, m_bLoadedTexturePreIslamic, "PreIslamic");
+		load(g_CommandLineOptions.IslamicSB,    m_TextureIslamic,    m_bLoadedTextureIslamic,    "Islamic");
+		load(g_CommandLineOptions.RepublicSB,   m_TextureRepublic,   m_bLoadedTextureRepublic,   "Republic");
 
-		passive_history = false;
-		OVERRIDE_FROM_CMDLINE_FLG("/passive_history", passive_history);
+		float initialOffsetX = g_CommandLineOptions.SBOffsetX;
+		float currentOffsetX = initialOffsetX;
+		float offsetIncline  = initialOffsetX + g_CommandLineOptions.SBSeperationFactor;
 
-		float initial_favor_x = 25.0f;
-		float favor_x = initial_favor_x, favor_y = 80.0f;
-		float favor_xsepfactor = 120.0f;
-
-		OVERRIDE_FROM_CMDLINE_FLT("/favor_x", initial_favor_x);
-		OVERRIDE_FROM_CMDLINE_FLT("/favor_y", favor_y);
-		OVERRIDE_FROM_CMDLINE_FLT("/favor_xsepfactor", favor_xsepfactor);
-		favor_x = initial_favor_x;
-
-		if (!passive_history)
+		if (!g_CommandLineOptions.PassiveHistory)
 		{
 			std::shared_ptr<sf::Sprite> preIslamic = std::make_shared<sf::Sprite>(m_TexturePreIslamic);
 			m_SortByBuffer[SORT_BY_PRE_ISLAMIC] = preIslamic;
 
-			preIslamic->setPosition({ favor_x, favor_y });
+			preIslamic->setPosition({ g_CommandLineOptions.SBOffsetX, g_CommandLineOptions.SBOffsetY });
 			preIslamic->setScale(preIslamic->getScale() / 3.0f);
 
-			favor_x += initial_favor_x;
-			favor_x += favor_xsepfactor;
+			currentOffsetX += offsetIncline;
 		}
 		else
 		{
@@ -150,34 +113,25 @@ namespace PeopleNetwork
 		std::shared_ptr<sf::Sprite> islamic = std::make_shared<sf::Sprite>(m_TextureIslamic);
 		m_SortByBuffer[SORT_BY_ISLAMIC] = islamic;
 
-		islamic->setPosition({ favor_x, favor_y });
+		islamic->setPosition({ currentOffsetX, g_CommandLineOptions.SBOffsetY });
 		islamic->setScale(islamic->getScale() / 3.0f);
-
-		favor_x += initial_favor_x;
-		favor_x += favor_xsepfactor;
+		currentOffsetX += offsetIncline;
 
 		std::shared_ptr<sf::Sprite> republic = std::make_shared<sf::Sprite>(m_TextureRepublic);
 		m_SortByBuffer[SORT_BY_REPUBLIC] = republic;
 
-		republic->setPosition({ favor_x, favor_y });
+		republic->setPosition({ currentOffsetX, g_CommandLineOptions.SBOffsetY });
 		republic->setScale(republic->getScale() / 3.0f);
+
+		std::shared_ptr<sf::Text> descriptor = std::make_shared<sf::Text>(font, L"Filtreyi kaldýrmak için aktif\ndönem filtreleme tuþuna\ntekrar basýn.", 24);
+		m_SortByBuffer[SORT_BY_DESCRIPTOR] = descriptor; // NOTE: MUST BE DONE BEFORE THE CODE ON THE NEXT LINE!
+
+		descriptor->setPosition({ 25.0f, 210.0f });
+		descriptor->setFillColor(sf::Color::Black);
 	}
 
 	void Renderer::BuildPersonInfoBuffer(const Person& person)
 	{
-		int adj;
-		m_PersonInfoBuffer.clear();
-
-		std::wstring contentNameHeader =
-			person.Name +
-			std::wstring(L" (") + std::to_wstring(person.Lifetime.first) + L'-' + std::to_wstring(person.Lifetime.second) + L')';
-
-		std::shared_ptr<sf::Text> textHeader = std::make_shared<sf::Text>(m_FontData.Bold, contentNameHeader, 56);
-		m_PersonInfoBuffer[PERSON_INFO_NAME_HEADER] = textHeader;
-
-		textHeader->setFillColor(sf::Color::Black);
-		textHeader->setPosition({ 35.0f, 35.0f });
-
 		auto periodToTurkishText = [](Person::HistoricalPeriod period) -> std::wstring
 		{
 			switch (period)
@@ -188,15 +142,20 @@ namespace PeopleNetwork
 			}
 			return {};
 		};
+		m_PersonInfoBuffer.clear();
 
-		std::wstring contentShortDesc = person.ShortDesc;
-		contentShortDesc += std::wstring(L" (") + periodToTurkishText(person.Period) + L" Dönemi Düþünürü)\n"
-			L"----------------------------------------------------------------------------------------------------------";
+		std::wstring contentNameHeader =
+			person.Name +
+			std::wstring(L" (") + std::to_wstring(person.Lifetime.first) + L'-' + std::to_wstring(person.Lifetime.second) + L") [" + periodToTurkishText(person.Period) + L" Dönemi Düþünürü]\n";
 
-		bool hardFixDisable = false;
-		OVERRIDE_FROM_CMDLINE_FLG("/hard_fix_disable", hardFixDisable);
+		std::shared_ptr<sf::Text> textHeader = std::make_shared<sf::Text>(m_FontData.Bold, contentNameHeader, 56);
+		m_PersonInfoBuffer[PERSON_INFO_NAME_HEADER] = textHeader;
 
-		if (!hardFixDisable && person.Period == Person::HistoricalPeriod::PreIslamic)
+		textHeader->setFillColor(sf::Color::Black);
+		textHeader->setPosition({ 35.0f, 35.0f });
+
+		std::wstring contentShortDesc = person.ShortDesc + L"\n----------------------------------------------------------------------------------------------------------";
+		if (person.Period == Person::HistoricalPeriod::PreIslamic)
 		{
 			contentShortDesc.erase(person.ShortDesc.size() + 24, 1);
 		}
@@ -216,19 +175,87 @@ namespace PeopleNetwork
 				L"\n----------------------------------------------------------------------------------------------------------------------------------------------------------------\n\n";
 		}
 
-		std::shared_ptr<sf::Text> textContent = std::make_shared<sf::Text>(m_FontData.Regular, contentMain, 24);
+		std::shared_ptr<sf::Text> textContent = std::make_shared<sf::Text>(m_FontData.Regular);
 		m_PersonInfoBuffer[PERSON_INFO_CONTENT_TEXT] = textContent;
 		
-		textContent->setFillColor(sf::Color::Black);
-		//textContent->setPosition({ 40.0f, 186.0f });
-		m_ContentTexture = sf::RenderTexture(sf::Vector2u((uint32_t) m_Window.getSize().x, (uint32_t)textContent->getGlobalBounds().size.y));
-		
-		const char* retButton = "Resources/Sprites/Button_Return.png";
-		OVERRIDE_FROM_CMDLINE_STR("/return_button", retButton);
-
-		if (&m_bLoadedTextureRetButton && !m_TextureRetButton.loadFromFile(retButton))
+		auto wrapText = [](const std::wstring& string, const sf::Font& font, sf::Text& text, unsigned int characterSize, float maxWidth) -> std::wstring
 		{
-			LOG_ERROR("Failed to load return button image from file '" << retButton << "'!");
+			text = sf::Text(font, L"", characterSize);
+			std::unordered_map<std::wstring, float> widthCache;
+			float spaceWidth;
+
+			text.setString(L" ");
+			spaceWidth = text.getLocalBounds().size.x;
+
+			std::wistringstream lines(string);
+			std::wstring line, finalResult;
+
+			while (std::getline(lines, line))
+			{
+			    std::wistringstream words(line);
+			    std::wstring word, currentLine;
+			    float lineWidth = 0.f;
+
+			    while (words >> word)
+				{
+			        float wordWidth;
+			        if (widthCache.count(word))
+					{
+			            wordWidth = widthCache[word];
+			        }
+					else
+					{
+			            text.setString(word);
+			            wordWidth = text.getLocalBounds().size.x;
+			            widthCache[word] = wordWidth;
+			        }
+
+			        float totalWidth = lineWidth + (currentLine.empty() ? 0.f : spaceWidth) + wordWidth;
+
+			        if (totalWidth > maxWidth)
+					{
+			            finalResult += currentLine + L'\n';
+			            currentLine = word;
+			            lineWidth = wordWidth;
+			        }
+					else
+					{
+						if (!currentLine.empty())
+						{
+							currentLine += L" ";
+						}
+			            currentLine += word;
+			            lineWidth = totalWidth;
+			        }
+			    }
+
+			    if (!currentLine.empty())
+				{
+			        finalResult += currentLine + L'\n';
+			    }
+				else
+				{
+			        finalResult += '\n';
+			    }
+			}
+
+			if (!finalResult.empty() && finalResult.back() == L'\n')
+			{
+			    finalResult.pop_back();
+			}
+			
+			text.setString(finalResult);
+			return finalResult;
+		};
+		wrapText(contentMain, m_FontData.Regular, *textContent, 24, 1800.0f);
+
+		textContent->setFillColor(sf::Color::Black);
+		m_PersonInfoTextHeight = textContent->getLocalBounds().size.y + textContent->getLocalBounds().position.x;
+		m_ContentTexture = sf::RenderTexture(sf::Vector2u((uint32_t) m_Window.getSize().x, (uint32_t) m_PersonInfoTextHeight));
+		
+		if (&m_bLoadedTextureRetButton && !m_TextureRetButton.loadFromFile(g_CommandLineOptions.ReturnButton))
+		{
+			LOG_ERROR("Failed to load return button image from file '" << g_CommandLineOptions.ReturnButton << "'!");
 			std::exit(EXIT_FAILURE);
 		}
 		m_bLoadedTextureRetButton = true;
@@ -243,14 +270,9 @@ namespace PeopleNetwork
 
 	void Renderer::InitMasterQuit()
 	{
-		int adj;
-
-		const char* master_quit = "Resources/Sprites/Button_MasterQuit.png";
-		OVERRIDE_FROM_CMDLINE_STR("/master_quit", master_quit);
-
-		if (!m_TextureMasterQuit.loadFromFile(master_quit))
+		if (!m_TextureMasterQuit.loadFromFile(g_CommandLineOptions.MasterQuit))
 		{
-			LOG_ERROR("Failed to load MQ button image from file '" << master_quit << "'!");
+			LOG_ERROR("Failed to load MQ button image from file '" << g_CommandLineOptions.MasterQuit << "'!");
 			std::exit(EXIT_FAILURE);
 		}
 
@@ -269,7 +291,7 @@ namespace PeopleNetwork
 			{
 			case SB_ALL:
 			{
-				if (period == Person::HistoricalPeriod::PreIslamic && passive_history)
+				if (period == Person::HistoricalPeriod::PreIslamic && g_CommandLineOptions.PassiveHistory)
 				{
 					continue;
 				}
@@ -278,7 +300,7 @@ namespace PeopleNetwork
 			}
 			case SB_PRE_ISLAMIC:
 			{
-				if (passive_history)
+				if (g_CommandLineOptions.PassiveHistory)
 				{
 					continue;
 				}
@@ -318,14 +340,10 @@ namespace PeopleNetwork
 		const float ySize = 32;
 		float xSize{};
 
-		int adj;
-		double factor = 13.0;
-		OVERRIDE_FROM_CMDLINE_INT("/xscalefactor", factor);
-
-		xSize = (float)(name.size() * factor);
+		xSize = (float)(name.size() * g_CommandLineOptions.XScaleFactor);
 		const sf::CircleShape& personCircle = m_PeopleBuffer.at(ih);
 		float personCircleRadius = personCircle.getRadius();
-		sf::Vector2f targetPos = { personCircle.getPosition().x, personCircle.getPosition().y - (personCircleRadius + FACTOR_SHIFT_PERSON_TOOLTIP) };
+		sf::Vector2f targetPos = { personCircle.getPosition().x, personCircle.getPosition().y - (personCircleRadius + g_CommandLineOptions.XScaleFactor) };
 
 		sf::RectangleShape rectShape({ xSize, ySize });
 		rectShape.setOrigin(rectShape.getSize() / 2.0f);
@@ -348,19 +366,22 @@ namespace PeopleNetwork
 			m_Window.draw(*m_SortByBuffer.at(SORT_BY_PRE_ISLAMIC));
 		m_Window.draw(*m_SortByBuffer.at(SORT_BY_ISLAMIC));
 		m_Window.draw(*m_SortByBuffer.at(SORT_BY_REPUBLIC));
+		m_Window.draw(*m_SortByBuffer.at(SORT_BY_DESCRIPTOR));
 	}
 
 	void Renderer::RenderPersonInfoBuffer()
 	{
 		sf::Text* text = (sf::Text*) m_PersonInfoBuffer.at(PERSON_INFO_CONTENT_TEXT).get();
-		m_ScrollOffset = std::max(0.0f, std::min(m_ScrollOffset, text->getLocalBounds().size.y - m_ContentViewSize.y));
+		sf::FloatRect textBounds = text->getLocalBounds();
+
+		m_ScrollOffset = std::clamp(m_ScrollOffset, 0.0f, m_PersonInfoTextHeight >= 900.0f ? m_PersonInfoTextHeight - 900.0f : m_PersonInfoTextHeight);
 
 		m_ContentTexture.clear(sf::Color::Transparent);
 		m_ContentTexture.draw(*text);
 		m_ContentTexture.display();
 
 		sf::Sprite sprite(m_ContentTexture.getTexture());
-		sprite.setTextureRect(sf::IntRect({ 0, (int) m_ScrollOffset }, { (int) m_ContentViewSize.x, (int) m_ContentViewSize.y }));
+		sprite.setTextureRect(sf::IntRect({ 0, (int) m_ScrollOffset }, { (int) m_Window.getSize().x, (int) m_Window.getSize().y }));
 		sprite.setPosition({ 35.0f, 180.0f });
 
 		m_Window.draw(*m_PersonInfoBuffer.at(PERSON_INFO_NAME_HEADER));
